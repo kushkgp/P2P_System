@@ -16,8 +16,8 @@ def sendUDPpacket(addr, msg):
 		s.bind('',randint(10000,60000))
 		msg = pkl.dumps(msg).encode()
 		s.sendto(msg, addr)
-	except Exception(e):
-		print e
+	except Exception as e:
+		print e.message
 	s.close()
 
 def recvUDPpacket(s):
