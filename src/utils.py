@@ -13,7 +13,7 @@ def initUDPrecvSocket(port):
 def sendUDPpacket(addr, msg):
 	try:
 		s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-		s.bind('',randint(10000,60000))
+		s.bind(('',randint(10000,60000)))
 		msg = pkl.dumps(msg).encode()
 		s.sendto(msg, addr)
 	except Exception as e:
