@@ -92,10 +92,14 @@ def updateQHT(ip, QHT):
 		d = a.neighbours
 	a.update_QHT(ip, d, QHT)
 	return true
+
+def removeleaf(ip, leafip):
+	a.remove_leaf(leafip)
+
 # todo
 # def search():
 
-func_map = {"addhub":addhub,"removehub":removehub,"addleaf":addleaf,"addfile":addfile,"removefile":removefile,"updateQHT":updateQHT}
+func_map = {"addhub":addhub,"removehub":removehub,"addleaf":addleaf,"addfile":addfile,"removeleaf":removeleaf,"removefile":removefile,"updateQHT":updateQHT}
 
 def main():
 	select_call(func_map, HUB_TCP_PORT, HUB_UDP_PORT)
