@@ -2,6 +2,8 @@ import socket
 import pickle as pkl
 from collections import defaultdict
 from utils import *
+from env import *
+
 HUB_TCP_PORT = 21000
 class WebCache:
 	def __init__(self, file = None):
@@ -49,5 +51,5 @@ class WebCache:
 
 a = WebCache()
 func_map = {"add":a.add, "req":a.request, "rem":a.remove}
-select_call(func_map)
+select_call(func_map, WEBCACHE_TCP_PORT, WEBCACHE_UDP_PORT)
 

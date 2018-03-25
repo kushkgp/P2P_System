@@ -59,14 +59,14 @@ def abc():
 
 # func_map = {"kush":abc}
 
-def select_call(func_map):
+def select_call(func_map, TCPport, UDPport):
 	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	server.setblocking(0)
-	server.bind(('', WC_TCP_PORT))
+	server.bind(('', TCPport))
 	server.listen(5)
 	TCPserver = server
 	
-	skt = initUDPrecvSocket(WC_UDP_PORT)
+	skt = initUDPrecvSocket(UDPport)
 
 	UPDservers = [skt]
 	TCPservers = []

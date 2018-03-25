@@ -1,10 +1,10 @@
 from collections import defaultdict
 from Hub import Hub
 from utils import *
+from env import *
 import threading
 import time
 import json
-import env
 
 a = Hub()
 
@@ -48,7 +48,7 @@ def joinCluster():
 			try:
 				connect_hub(hub, a.get_aggregateQHT())
 				x+=1
-				if x >= 7:
+				if x >= HUB_CLUSTER_LIMIT:
 					break
 			except Exception as e:
 				continue
@@ -92,12 +92,13 @@ def updateQHT(ip, QHT):
 		d = a.neighbours
 	a.update_QHT(ip, d, QHT)
 	return true
-
+# todo
 # def search():
-func_map = {"addhub":addhub,"removehub":removehub,"addleaf":addleaf,"addfile":addfile,"removefile":removefile,"updateQHT":updateQHT,"search":search}
+
+func_map = {"addhub":addhub,"removehub":removehub,"addleaf":addleaf,"addfile":addfile,"removefile":removefile,"updateQHT":updateQHT}
 
 def main():
-	select_call(func_map)
+	select_call(func_map, HUB_TCP_PORT, HUB_UDP_PORT)
 	threading.Thread(target = heartbeat).start()
 	joinCluster()
 
