@@ -46,7 +46,7 @@ def sendUDPpacket(addr, msg):
 	s.sendto(msg, addr)
 	s.close()
 # todo : test
-def recvUDPpacket(s, timeout = None)
+def recvUDPpacket(s, timeout = None):
 	s.settimeout(timeout)
 	try:
 		message, address = s.recvfrom(1024)
