@@ -26,14 +26,14 @@ def myreceive(sock):
 	return b''.join(chunks)
 
 def get_hublist():
-	s = socket.socket()
-	s.bind(("",randint(10000,20000)))
-	s.connect((WEB_CACHE_IP,WEB_CACHE_TCP_PORT))
-	str = json.dumps(("req",))
-	s.send(str.encode())
-	ret = myreceive(s)
-	s.close()
-	return ret
+	try:
+		address = ("192.168.0.6",50000)
+		s = initTCPSocket(address)
+		sendTCP(s,("req",))
+		hublist = recvTCP(s)
+		return hublist
+	except Exception as e:
+		print e.message
 
 def heartbeat():
 	addr = (WEB_CACHE_IP,WEB_CACHE_UDP_PORT)
