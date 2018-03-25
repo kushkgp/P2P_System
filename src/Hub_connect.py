@@ -20,7 +20,7 @@ def myreceive(sock):
 	return b''.join(chunks)
 
 def get_hublist():
-	addr = ("192.168.0.6",50000)
+	addr = (WEB_CACHE_IP,WEB_CACHE_TCP_PORT)
 	s = initTCPSocket(addr)
 	sendTCP(s,("req",))
 	hublist = recvTCP(s)
@@ -30,7 +30,7 @@ def heartbeat():
 	addr = (WEB_CACHE_IP,WEB_CACHE_UDP_PORT)
 	while True:
 		print "sending heartbeat"
-		time.sleep(1)
+		time.sleep(HUB_HEARTRATE)
 		sendUDPpacket(addr, ("add",(a.get_leafCount(), a.get_neighbourCount()) ))
 
 def connect_hub(ip, aggregateQHT):
@@ -102,8 +102,8 @@ def removeleaf(ip, leafip):
 func_map = {"addhub":addhub,"removehub":removehub,"addleaf":addleaf,"addfile":addfile,"removeleaf":removeleaf,"removefile":removefile,"updateQHT":updateQHT}
 
 def main():
-	select_call(func_map, HUB_TCP_PORT, HUB_UDP_PORT)
 	threading.Thread(target = heartbeat).start()
+	select_call(func_map, HUB_TCP_PORT, HUB_UDP_PORT)
 	joinCluster()
 
 main()
