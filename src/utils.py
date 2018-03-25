@@ -1,6 +1,6 @@
 import socket
 from collections import defaultdict
-import pickle as pkl
+import json
 from random import randint
 import select, socket, sys, Queue
 HUB_TCP_PORT = 21000
@@ -14,7 +14,7 @@ def sendUDPpacket(addr, msg):
 	try:
 		s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		s.bind(('',randint(10000,60000)))
-		msg = pkl.dumps(msg).encode()
+		msg = json.dumps(msg).encode()
 		s.sendto(msg, addr)
 	except Exception as e:
 		print e.message
@@ -30,10 +30,9 @@ def abc():
 # func_map = {"kush":abc}
 
 def send_data(skt, data):
-
+	skt.send(data)
 
 def select_call(func_map):
-
 	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	server.setblocking(0)
 	server.bind(('', 50000))
@@ -53,6 +52,7 @@ def select_call(func_map):
 	while inputs:
 		print len(inputs)
 		readable, writable, exceptional = select.select(inputs, outputs, inputs)
+		print "---=-=-=-=--=-=-=-=-=--==--=-=-=-=--=--=-=-=-=---=--=-=-=-=-"
 		for s in readable:
 			if s is TCPserver:
 				print "New incoming TCP connection"
@@ -64,26 +64,31 @@ def select_call(func_map):
 				# message_queues[connection] = Queue.Queue()
 			elif s in TCPservers:
 				msg = s.recv(1024)
-				if msg is None:
+				print msg
+				if msg=="" or msg is None:
 					print "Client closed TCP connection ",client_addresses[s]
 					client_addresses.pop(s)
 					inputs.remove(s)
 					TCPservers.remove(s)
 					continue
+				addr = client_addresses[s]
 				print "TCP packet received from ", client_addresses[s]
-				inp = pkl.loads(msg)
+				print msg
+				inp = json.loads(msg)
 				print inp
 				try:
-					print inp[0], addr[0], inp[1:]
+					print inp[0], addr[0]
 					data = func_map[inp[0]](addr[0],*inp[1:])
-					send_data(s,data)
+					print data
+					ret_data = json.dumps(data)
+					send_data(s,ret_data)
 				except Exception as e:
 					print e.message
 
 			elif s in UPDservers:
 				msg, addr = s.recvfrom(1024)
 				print "UDP packet received from ", addr
-				inp = pkl.loads(msg)
+				inp = json.loads(msg)
 				print inp
 				try:
 					print inp[0], addr[0], inp[1:]
