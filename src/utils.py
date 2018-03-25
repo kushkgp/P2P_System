@@ -5,7 +5,35 @@ from random import randint
 import select, socket, sys, Queue
 WC_TCP_PORT = 50000
 WC_UDP_PORT = 15000
-#Port : 
+
+# call tcp functions if you expect to get reply from the destination
+def initTCPSocket(addr):
+	s = socket.socket()
+	s.bind(('',randint(10000,20000)))
+	s.connect(addr)
+	return s
+
+def sendTCP(skt, msg):
+	data = json.dumps(msg).encode()
+	totalsent = 0
+	while totalsent < len(data):
+		sent = skt.send(data[totalsent:])
+		if sent == 0:
+			raise RuntimeError("socket connection broken")
+		totalsent = totalsent + sent
+
+def recvTCP(sock):
+	chunks = []
+	bytes_recd = 0
+	while bytes_recd%1024==0:
+		chunk = sock.recv(1024)
+		if chunk == b'':
+			raise RuntimeError("socket connection broken")
+		chunks.append(chunk)
+		bytes_recd = bytes_recd + len(chunk)
+	return json.loads(b''.join(chunks))
+
+# call udp functions
 def initUDPrecvSocket(port):
 	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	s.bind(('',port))
@@ -29,14 +57,6 @@ def abc():
 	print "yoyo"
 
 # func_map = {"kush":abc}
-
-def send_data(skt, data):
-	totalsent = 0
-	while totalsent < len(data):
-		sent = skt.send(data[totalsent:])
-		if sent == 0:
-			raise RuntimeError("socket connection broken")
-		totalsent = totalsent + sent
 
 def select_call(func_map):
 	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -86,8 +106,7 @@ def select_call(func_map):
 					print "func : ", inp[0], "called by ", addr[0], " with args : ", inp[1:]
 					data = func_map[inp[0]](addr[0],*inp[1:])
 					print data
-					ret_data = json.dumps(data)
-					send_data(s,ret_data)
+					sendTCP(s,data)
 				except Exception as e:
 					print e.message
 

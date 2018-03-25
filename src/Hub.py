@@ -4,7 +4,8 @@ class Hub:
 	def __init__(self):
 		self.leaves = defaultdict(lambda : defaultdict(lambda:0))
 		self.neighbours = defaultdict(lambda : defaultdict())
-		
+		self.hublist = defaultdict(lambda:(0,0))
+
 	def add_leaf(self, ip, port):
 		self.leaves[(ip, port)] 
 
