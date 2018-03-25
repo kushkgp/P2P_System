@@ -4,12 +4,11 @@ from collections import defaultdict
 from utils import *
 HUB_TCP_PORT = 21000
 class WebCache:
-	__hublist = []
 	def __init__(self, file = None):
 		if file is not None:
 			self.__hublist = pkl.load(open(file,'r'))
 		else:	
-			self.__hublist = [2]
+			self.__hublist = defaultdict(lambda:(0,0))
 	def start(self):
 		host = ''
 		port = 50196
@@ -38,18 +37,17 @@ class WebCache:
 		   c.send("FO")
 		   # Close the connection with the client
 		   c.close() 
-	def add(self,ip, port=HUB_TCP_PORT, conn_cnt=(0,0)):
-		self.__hublist[(ip,port)] = conn_cnt
+	def add(self, sender_ip, conn_cnt=(0,0)):
+		self.__hublist[sender_ip] = conn_cnt
 
-	def remove(self,ip, port=HUB_TCP_PORT):
-		if (ip,port) in __hublist:
-			self.__hublist.pop((ip,port))
+	def remove(self, sender_ip, ip):
+		if ip in self.__hublist:
+			self.__hublist.pop(ip)
 	
-	def request(self):
+	def request(self, sender_ip):
 		return self.__hublist
 
 a = WebCache()
-func_map = {"add":a.add}
-
+func_map = {"add":a.add, "req":a.request, "rem":a.remove}
 select_call(func_map)
 

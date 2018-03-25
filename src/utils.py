@@ -3,7 +3,8 @@ from collections import defaultdict
 import json
 from random import randint
 import select, socket, sys, Queue
-HUB_TCP_PORT = 21000
+WC_TCP_PORT = 50000
+WC_UDP_PORT = 15000
 #Port : 
 def initUDPrecvSocket(port):
 	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -30,16 +31,21 @@ def abc():
 # func_map = {"kush":abc}
 
 def send_data(skt, data):
-	skt.send(data)
+	totalsent = 0
+	while totalsent < len(data):
+		sent = skt.send(data[totalsent:])
+		if sent == 0:
+			raise RuntimeError("socket connection broken")
+		totalsent = totalsent + sent
 
 def select_call(func_map):
 	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	server.setblocking(0)
-	server.bind(('', 50000))
+	server.bind(('', WC_TCP_PORT))
 	server.listen(5)
 	TCPserver = server
 	
-	skt = initUDPrecvSocket(15000)
+	skt = initUDPrecvSocket(WC_UDP_PORT)
 
 	UPDservers = [skt]
 	TCPservers = []
@@ -50,9 +56,9 @@ def select_call(func_map):
 	message_queues = {}
 	client_addresses = defaultdict()
 	while inputs:
+		print "---=-=-=-=--=-=-=-=-=--==--=-=-=-=--=--=-=-=-=---=--=-=-=-=-"
 		print len(inputs)
 		readable, writable, exceptional = select.select(inputs, outputs, inputs)
-		print "---=-=-=-=--=-=-=-=-=--==--=-=-=-=--=--=-=-=-=---=--=-=-=-=-"
 		for s in readable:
 			if s is TCPserver:
 				print "New incoming TCP connection"
@@ -61,23 +67,23 @@ def select_call(func_map):
 				connection.setblocking(0)
 				inputs.append(connection)
 				TCPservers.append(connection)
-				# message_queues[connection] = Queue.Queue()
 			elif s in TCPservers:
 				msg = s.recv(1024)
 				print msg
-				if msg=="" or msg is None:
+				if msg == "" or msg is None:
 					print "Client closed TCP connection ",client_addresses[s]
 					client_addresses.pop(s)
 					inputs.remove(s)
 					TCPservers.remove(s)
 					continue
+
 				addr = client_addresses[s]
 				print "TCP packet received from ", client_addresses[s]
 				print msg
 				inp = json.loads(msg)
 				print inp
 				try:
-					print inp[0], addr[0]
+					print "func : ", inp[0], "called by ", addr[0], " with args : ", inp[1:]
 					data = func_map[inp[0]](addr[0],*inp[1:])
 					print data
 					ret_data = json.dumps(data)
@@ -91,7 +97,7 @@ def select_call(func_map):
 				inp = json.loads(msg)
 				print inp
 				try:
-					print inp[0], addr[0], inp[1:]
+					print "func : ", inp[0], "called by ", addr[0], " with args : ", inp[1:]
 					func_map[inp[0]](addr[0],*inp[1:])
 				except Exception as e:
 					print e.message
