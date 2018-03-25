@@ -45,9 +45,13 @@ def sendUDPpacket(addr, msg):
 	msg = json.dumps(msg).encode()
 	s.sendto(msg, addr)
 	s.close()
-
-def recvUDPpacket(s):
-	message, address = s.recvfrom(1024)
+# todo : test
+def recvUDPpacket(s, timeout = None)
+	s.settimeout(timeout)
+	try:
+		message, address = s.recvfrom(1024)
+	except socket.timeout as e:
+		return "", None
 	return json.loads(message), address
 
 def abc():

@@ -4,13 +4,7 @@ from utils import *
 import threading
 import time
 import json
-
-# HUB_UDP_PORT = 
-HUB_TCP_PORT = 21000
-WEB_CACHE_IP = "192.168.0.6"
-WEB_CACHE_UDP_PORT = 15000
-WEB_CACHE_TCP_PORT = 50000
-
+import env
 
 a = Hub()
 
@@ -26,14 +20,11 @@ def myreceive(sock):
 	return b''.join(chunks)
 
 def get_hublist():
-	try:
-		address = ("192.168.0.6",50000)
-		s = initTCPSocket(address)
-		sendTCP(s,("req",))
-		hublist = recvTCP(s)
-		return hublist
-	except Exception as e:
-		print e.message
+	addr = ("192.168.0.6",50000)
+	s = initTCPSocket(addr)
+	sendTCP(s,("req",))
+	hublist = recvTCP(s)
+	return hublist
 
 def heartbeat():
 	addr = (WEB_CACHE_IP,WEB_CACHE_UDP_PORT)
@@ -42,12 +33,72 @@ def heartbeat():
 		time.sleep(1)
 		sendUDPpacket(addr, ("add",(a.get_leafCount(), a.get_neighbourCount()) ))
 
-def join():
-	a.hublist = get_hublist()
+def connect_hub(ip, aggregateQHT):
+	addr = (ip, HUB_TCP_PORT)
+	s = initTCPSocket(addr)
+	sendTCP(s, ("addhub",aggregateQHT))
+	a.neighbours[ip] = recvTCP(s)
 
+def joinCluster():
+	try:
+		a.hublist = get_hublist()
+		# todo sort hublist by no. of hubs
+		x = len(a.neighbours)
+		for hub in a.hublist:
+			try:
+				connect_hub(hub, a.get_aggregateQHT())
+				x+=1
+				if x >= 7:
+					break
+			except Exception as e:
+				continue
+	except Exception as e:
+		print e.message
+
+def requestQHT(ip):
+	addr = (ip,LEAF_TCP_PORT)
+	s = initTCPSocket(addr)
+	sendTCP(s,("reqQHT",))
+	hublist = recvTCP(s)
+	return hublist
+
+def addhub(ip, aggregateQHT):
+	a.neighbours[ip] = aggregateQHT
+	return a.get_aggregateQHT()
+
+def removehub(ip):
+	a.remove_neigbour(ip)
+	joinCluster()
+
+def addleaf(ip):
+	a.add_leaf(ip)
+
+def addfile(ip, filename, size):
+	if ip not in a.leaves:
+		try:
+			a.leaves[ip] = requestQHT(ip)
+		except Exception as e:
+			print e.message
+	else:
+		a.add_file(ip, filename, size)
+
+def removefile(ip, filename):
+	a.remove_file(ip, filename)
+
+def updateQHT(ip, QHT):
+	if ip in a.leaves:
+		d = a.leaves
+	elif ip in a.neighbours:
+		d = a.neighbours
+	a.update_QHT(ip, d, QHT)
+	return true
+
+# def search():
+func_map = {"addhub":addhub,"removehub":removehub,"addleaf":addleaf,"addfile":addfile,"removefile":removefile,"updateQHT":updateQHT,"search":search}
 
 def main():
+	select_call(func_map)
 	threading.Thread(target = heartbeat).start()
-
+	joinCluster()
 
 main()

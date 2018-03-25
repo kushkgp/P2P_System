@@ -6,40 +6,40 @@ class Hub:
 		self.neighbours = defaultdict(lambda : defaultdict())
 		self.hublist = defaultdict(lambda:(0,0))
 
-	def add_leaf(self, ip, port):
-		self.leaves[(ip, port)] 
+	def add_leaf(self, ip):
+		self.leaves[ip] 
 
-	def remove_leaf(self, ip, port):
-		if (ip, port) in self.leaves:
-			self.leaves.pop((ip, port)) 
+	def remove_leaf(self, ip):
+		if ip in self.leaves:
+			self.leaves.pop(ip) 
 
-	def add_neighbour(self, ip, port):
-		self.neighbours[(ip, port)]
+	def add_neighbour(self, ip):
+		self.neighbours[ip]
 
-	def remove_neighbour(self, ip, port):
-		if (ip, port) in self.neighbours:
-			self.neighbours.pop((ip, port)) 
+	def remove_neighbour(self, ip):
+		if ip in self.neighbours:
+			self.neighbours.pop(ip) 
 
-	def update_QHT(self, ip, port, d, filelist):
-		if (ip, port) in d:
-			d[(ip, port)] = filelist
+	def update_QHT(self, ip, d, filelist):
+		if ip in d:
+			d[ip] = filelist
 		else:
-			raise Exception('ip and port not found in dict')
+			raise Exception('ip not found in dict')
 
-	def add_file(self, ip, port, d, filename, size = None):
-		if (ip, port) in d:
-			d[(ip, port)][filename] = size
+	def add_file(self, ip, filename, size = 0):
+		if ip in self.leaves:
+			self.leaves[ip][filename] = size
 		else:
-			raise Exception('ip and port not found in dict')
+			raise Exception('ip not found in dict')
 
-	def remove_file(self, ip, port, d, filename):
-		if (ip, port) in d:
-			if filename in d[(ip, port)]:
-				d[(ip, port)].pop(filename)
+	def remove_file(self, ip, filename):
+		if ip in self.leaves:
+			if filename in self.leaves[ip]:
+				self.leaves[ip].pop(filename)
 			else:
 				raise Exception("filename doesn't exists in dict")
 		else:
-			raise Exception('ip and port not found in dict')
+			raise Exception('ip not found in dict')
 
 	def local_search(self, filename):
 		ans = []
