@@ -3,6 +3,12 @@ from collections import defaultdict
 import pickle as pkl
 from random import randint
 import select, socket, sys, Queue
+<<<<<<< HEAD
+
+HUB_TCP_PORT = 21000
+
+=======
+>>>>>>> 522d35f8d8386d75bdebdd1f1ad64d4c509d4b29
 #Port : 
 def initUDPrecvSocket(port):
 	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -13,9 +19,16 @@ def sendUDPpacket(addr, msg):
 	try:
 		s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		s.bind('',randint(10000,60000))
+<<<<<<< HEAD
+		msg = pkl.dumps(msg).encode()
+		s.sendto(msg, addr)
+	except Exception as e:
+		print e.message
+=======
 		s.sendto(msg, addr)
 	except Exception(e):
 		print e
+>>>>>>> 522d35f8d8386d75bdebdd1f1ad64d4c509d4b29
 	s.close()
 
 def recvUDPpacket(s):
@@ -25,9 +38,15 @@ def recvUDPpacket(s):
 def abc():
 	print "yoyo"
 
+<<<<<<< HEAD
+# func_map = {"kush":abc}
+
+def select_call(func_map):
+=======
 func_map = {"kush":abc}
 
 def select_call():
+>>>>>>> 522d35f8d8386d75bdebdd1f1ad64d4c509d4b29
 
 	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	
@@ -55,10 +74,21 @@ def select_call():
 				inputs.append(connection)
 				message_queues[connection] = Queue.Queue()
 			elif s in UPDservers:
+<<<<<<< HEAD
+				msg, addr = s.recvfrom(1024)
+				print "UDP packet received from ", addr
+				inp = pkl.loads(msg)
+				print inp
+				try:
+					func_map[inp[0]](addr[0],*inp[1:])
+				except Exception as e:
+					print e.message
+=======
 				print "UDP packet received"
 				msg, addr = s.recvfrom(1024)
 				print msg
 				func_map[msg]()
+>>>>>>> 522d35f8d8386d75bdebdd1f1ad64d4c509d4b29
 			else:
 				print "gulab"
 				data = s.recv(1024)
@@ -75,13 +105,24 @@ def select_call():
 					del message_queues[s]
 
 		for s in writable:
+<<<<<<< HEAD
+			print "something in writable"
+=======
 			print "something"
+>>>>>>> 522d35f8d8386d75bdebdd1f1ad64d4c509d4b29
 			try:
 				next_msg = message_queues[s].get_nowait()
 			except Queue.Empty:
 				outputs.remove(s)
+<<<<<<< HEAD
+				print "No message sent"
 			else:
 				s.send(next_msg)
+				print "Message sent"
+=======
+			else:
+				s.send(next_msg)
+>>>>>>> 522d35f8d8386d75bdebdd1f1ad64d4c509d4b29
 
 		for s in exceptional:
 			print "Left"
@@ -91,5 +132,8 @@ def select_call():
 			s.close()
 			del message_queues[s]
 
+<<<<<<< HEAD
+=======
 
 select_call()
+>>>>>>> 522d35f8d8386d75bdebdd1f1ad64d4c509d4b29
