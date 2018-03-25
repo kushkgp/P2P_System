@@ -40,18 +40,15 @@ def initUDPrecvSocket(port):
 	return s
 
 def sendUDPpacket(addr, msg):
-	try:
-		s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-		s.bind(('',randint(10000,60000)))
-		msg = json.dumps(msg).encode()
-		s.sendto(msg, addr)
-	except Exception as e:
-		print e.message
+	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	s.bind(('',randint(10000,60000)))
+	msg = json.dumps(msg).encode()
+	s.sendto(msg, addr)
 	s.close()
 
 def recvUDPpacket(s):
 	message, address = s.recvfrom(1024)
-	return message, address
+	return json.loads(message), address
 
 def abc():
 	print "yoyo"
