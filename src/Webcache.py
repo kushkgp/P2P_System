@@ -1,13 +1,13 @@
 import socket
+from collections import defaultdict
 import pickle as pkl
 
 class WebCache:
-	__hublist = []
 	def __init__(self, file = None):
 		if file is not None:
 			self.__hublist = pkl.load(open(file,'r'))
 		else:	
-			self.__hublist = [2]
+			self.__hublist = defaultdict(lambda:0)
 	def start(self):
 		host = ''
 		port = 50196
@@ -35,10 +35,17 @@ class WebCache:
 		   print req
 		   c.send("FO")
 		   # Close the connection with the client
-		   c.close() 
-	# def add():
-	# def remove():
-	# def request():
+		   c.close()
+
+	def add(ip, port, leaf_cnt=0):
+		__hublist[(ip,port)] = leaf_cnt
+
+	def remove(ip, port):
+		if (ip,port) in __hublist:
+			__hublist.pop((ip,port))
+	
+	def request():
+		return __hublist
 
 a = WebCache()
 a.start()
