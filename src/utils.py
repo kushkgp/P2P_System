@@ -29,39 +29,64 @@ def abc():
 
 # func_map = {"kush":abc}
 
+def send_data(skt, data):
+
+
 def select_call(func_map):
 
 	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	
 	server.setblocking(0)
 	server.bind(('', 50000))
 	server.listen(5)
+	TCPserver = server
 	
 	skt = initUDPrecvSocket(15000)
-	
+
 	UPDservers = [skt]
-	TCPservers = [server]
+	TCPservers = []
 
 	inputs = [server,skt]
 	outputs = []
-	message_queues = {}
 
+	message_queues = {}
+	client_addresses = defaultdict()
 	while inputs:
 		print len(inputs)
 		readable, writable, exceptional = select.select(inputs, outputs, inputs)
 		for s in readable:
-			if s in TCPservers:
+			if s is TCPserver:
 				print "New incoming TCP connection"
 				connection, client_address = s.accept()
+				client_addresses[connection] = client_address
 				connection.setblocking(0)
 				inputs.append(connection)
-				message_queues[connection] = Queue.Queue()
+				TCPservers.append(connection)
+				# message_queues[connection] = Queue.Queue()
+			elif s in TCPservers:
+				msg = s.recv(1024)
+				if msg is None:
+					print "Client closed TCP connection ",client_addresses[s]
+					client_addresses.pop(s)
+					inputs.remove(s)
+					TCPservers.remove(s)
+					continue
+				print "TCP packet received from ", client_addresses[s]
+				inp = pkl.loads(msg)
+				print inp
+				try:
+					print inp[0], addr[0], inp[1:]
+					data = func_map[inp[0]](addr[0],*inp[1:])
+					send_data(s,data)
+				except Exception as e:
+					print e.message
+
 			elif s in UPDservers:
 				msg, addr = s.recvfrom(1024)
 				print "UDP packet received from ", addr
 				inp = pkl.loads(msg)
 				print inp
 				try:
+					print inp[0], addr[0], inp[1:]
 					func_map[inp[0]](addr[0],*inp[1:])
 				except Exception as e:
 					print e.message
