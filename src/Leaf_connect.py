@@ -161,7 +161,7 @@ def getFile(filename):
 	download_status = search_and_download(filename)
 	if download_status:
 		return True
-	b = get_hublist()							# retry with new latest hubs
+	_, b = get_hublist()							# retry with new latest hubs
 	print "Requesting mutex"
 	mutex.acquire()
 	print "Acquired mutex"

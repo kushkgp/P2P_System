@@ -4,13 +4,14 @@ from env import *
 import time
 import json
 import os
+import socket
 
 def get_hublist():
 	addr = (WEB_CACHE_IP,WEB_CACHE_TCP_PORT)
 	s = initTCPSocket(addr)
 	sendTCP(s,("req",))
-	hublist = recvTCP(s)
-	return hublist
+	response = recvTCP(s)
+	return response[0], response[1]
 
 def connect_hub(ip, a, isLeaf):
 	addr = (ip, HUB_TCP_PORT)
@@ -21,8 +22,10 @@ def connect_hub(ip, a, isLeaf):
 
 def joinCluster(a, CLUSTER_LIMIT, isLeaf):
 	try:
-		a.hublist = get_hublist()
+		selfip, a.hublist = get_hublist()
+		a.hublist.pop(selfip)
 		# todo sort hublist by no. of leaves/hubs
+		print selfip, a.hublist
 		for nbr in a.neighbours:
 			if nbr not in a.hublist:
 				a.neighbours.pop(nbr)
@@ -37,6 +40,5 @@ def joinCluster(a, CLUSTER_LIMIT, isLeaf):
 				except Exception as e:
 					print e.message
 					continue
-
 	except Exception as e:
 		print e.message
