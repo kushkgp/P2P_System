@@ -25,16 +25,15 @@ def connect_hub(ip, a, isLeaf):
 def joinCluster(a, CLUSTER_LIMIT, isLeaf):
 	try:
 		a.hublist = get_hublist(isLeaf)
-		if isLeaf :
-			sorted(a.hublist.values())
-		else :
-			#todo
+		sorted_tuples = sorted(a.hublist.items(),key=lambda x: x[1][1-isLeaf])
 		# todo sort hublist by no. of leaves/hubs
 		for nbr in a.neighbours:
 			if nbr not in a.hublist:
 				a.neighbours.pop(nbr)
 		x = len(a.neighbours)
-		for hub in a.hublist:
+		
+		for hub_tuple in sorted_tuples:
+			hub = hub_tuple[0]
 			if hub not in a.neighbours:
 				try:
 					connect_hub(hub, a, isLeaf)

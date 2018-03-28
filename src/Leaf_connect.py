@@ -12,7 +12,6 @@ from random import *
 from cmd import Cmd
 import os
 import sys
-from filewatcher import * 
 import pyinotify
 
 dirpath = "./"
