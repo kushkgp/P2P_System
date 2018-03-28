@@ -2,16 +2,17 @@ import os
 from collections import defaultdict
 
 class Leaf:
-	def __init__(self, FileList):
+	def __init__(self, FileList, dirpath):
 		self.neighbours = defaultdict()
 		self.QHT = FileList
 		self.hublist = defaultdict(lambda:(0,0))
+		self.dir = dirpath
 		# self.WebCacheInfo = WebCacheInfo
 		# self.HUBSCNT = nHubs
 		# self.PATH = Path
 
 	def addFile(self, filename):
-		size = os.path.getsize(filename)
+		size = os.path.getsize(self.dirpath+filename)
 		self.FileList[filename] = size
 		return size
 

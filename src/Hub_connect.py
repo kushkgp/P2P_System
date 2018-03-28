@@ -59,11 +59,18 @@ def updateQHT(ip, QHT, isLeaf):
 def removeleaf(ip, leafip):
 	a.remove_leaf(leafip)
 
+
+def informQHT(ip, fromhub):
+	connectHub(fromhub, a, False)
+
+
 # todo
 # updateQht hub to hub
 # def search():
 
-func_map = {"addhub":addhub,"removehub":removehub,"addleaf":addleaf,"addfile":addfile,"removeleaf":removeleaf,"removefile":removefile,"updateQHT":updateQHT}
+func_map = {"addhub":addhub,"removehub":removehub,
+			"addleaf":addleaf,"addfile":addfile,"removeleaf":removeleaf,
+			"removefile":removefile,"updateQHT":updateQHT, "informQHT":informQHT}
 
 def main():
 	threading.Thread(target = heartbeat).start()
