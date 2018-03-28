@@ -13,8 +13,8 @@ def heartbeat():
 	addr = (WEB_CACHE_IP,WEB_CACHE_UDP_PORT)
 	while True:
 		print "sending heartbeat"
-		time.sleep(HUB_HEARTRATE)
 		sendUDPpacket(addr, ("add",(a.get_leafCount(), a.get_neighbourCount()) ))
+		time.sleep(HUB_HEARTRATE)
 
 def requestQHT(ip):
 	addr = (ip,LEAF_TCP_PORT)
@@ -63,6 +63,23 @@ def removeleaf(ip, leafip):
 def informQHT(ip, fromhub):
 	connectHub(fromhub, a, False)
 
+def search(ip, randport, filename):
+	addr = (ip, randport)
+	isLeaf = False
+	isFound = False
+	for leaf in a.leaves:
+		if filename in a.leaves[leaf]:
+			isLeaf = True
+			isFound = True
+			target = leaf
+			break
+	if not isFound:
+		for hub in a.neighbours:
+			if filename in a.neighbours[hub]:
+				isFound = True
+				target = hub
+				break
+	sendUDPpacket(addr, (isFound, isLeaf, target))
 
 # todo
 # updateQht hub to hub
@@ -70,7 +87,9 @@ def informQHT(ip, fromhub):
 
 func_map = {"addhub":addhub,"removehub":removehub,
 			"addleaf":addleaf,"addfile":addfile,"removeleaf":removeleaf,
-			"removefile":removefile,"updateQHT":updateQHT, "informQHT":informQHT}
+			"removefile":removefile,"updateQHT":updateQHT, "informQHT":informQHT,
+			"search":search
+			}
 
 def main():
 	threading.Thread(target = heartbeat).start()

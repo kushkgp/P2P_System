@@ -27,12 +27,12 @@ def heartbeat():
 	while True:
 		fd.write("\nsending heartbeat to Connected hubs")
 		fd.flush()
-		time.sleep(HUB_HEARTRATE)
 		for hub in a.neighbours:
 			addr = (hub,HUB_UDP_PORT)
 			sendUDPpacket(addr, ("addleaf",))
 			fd.write("\nsent heartbeat to "+str(addr))
 			fd.flush()
+		time.sleep(HUB_HEARTRATE)
 
 def get_QHT(ip):
 	return a.get_aggregateQHT()
