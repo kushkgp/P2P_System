@@ -11,7 +11,9 @@ def get_hublist():
 	s = initTCPSocket(addr)
 	sendTCP(s,("req",))
 	response = recvTCP(s)
-	return response[0], response[1]
+	if response[0] in response[1]
+		response[1].pop(response[0])
+	return response[1]
 
 def connect_hub(ip, a, isLeaf):
 	addr = (ip, HUB_TCP_PORT)
@@ -22,8 +24,7 @@ def connect_hub(ip, a, isLeaf):
 
 def joinCluster(a, CLUSTER_LIMIT, isLeaf):
 	try:
-		selfip, a.hublist = get_hublist()
-		a.hublist.pop(selfip)
+		a.hublist = get_hublist()
 		# todo sort hublist by no. of leaves/hubs
 		for nbr in a.neighbours:
 			if nbr not in a.hublist:
