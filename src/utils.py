@@ -55,9 +55,6 @@ def recvUDPpacket(s, timeout = None):
 		print e.message
 		return "", None
 
-def abc():
-	print "yoyo"
-
 # func_map = {"kush":abc}
 
 def select_call(func_map, TCPport, UDPport):
@@ -107,7 +104,7 @@ def select_call(func_map, TCPport, UDPport):
 				try:
 					print "func : ", inp[0], "called by ", addr[0], " with args : ", inp[1:]
 					data = func_map[inp[0]](addr[0],*inp[1:])
-					print data
+					# print data
 					sendTCP(s,data)
 				except Exception as e:
 					print e.message

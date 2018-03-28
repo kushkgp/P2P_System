@@ -111,8 +111,8 @@ def removeFile(filename):
 		# print "Releasing mutex"
 		mutex.release()
 
-def retrieve_file(ip,filename):
-	return allfilebytes
+def retrieve_file(ip, filename):
+	return open(a.dir+filename,"r").read()
 
 def download(leafip, hubip, filename):
 	try:
@@ -121,8 +121,9 @@ def download(leafip, hubip, filename):
 		addr = (leafip,LEAF_TCP_PORT)
 		s = initTCPSocket(addr)
 		sendTCP(s,("retrieve_file",filename))
-		file = recvTCP(s)
-		file.save()
+		data = recvTCP(s)
+		file = open(a.dir+filename,"w+")
+		file.write(data)
 		return True
 	except Exception as e:
 		fd.write(e.message)
