@@ -50,9 +50,10 @@ def recvUDPpacket(s, timeout = None):
 	s.settimeout(timeout)
 	try:
 		message, address = s.recvfrom(1024)
+		return json.loads(message), address
 	except socket.timeout as e:
+		print e.message
 		return "", None
-	return json.loads(message), address
 
 def abc():
 	print "yoyo"

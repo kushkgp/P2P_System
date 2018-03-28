@@ -10,9 +10,10 @@ class Leaf:
 		# self.HUBSCNT = nHubs
 		# self.PATH = Path
 
-	def addFile(self,filename):
-		size = os.path.getsize(PATH + filename)
+	def addFile(self, filename):
+		size = os.path.getsize(filename)
 		self.FileList[filename] = size
+		return size
 
 	def removeFile(self,fileInfo,ip,port):
 		size = os.path.getsize(PATH + filename)

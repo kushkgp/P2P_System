@@ -16,12 +16,26 @@ def heartbeat():
 		time.sleep(HUB_HEARTRATE)
 		for hub in a.neighbours:
 			addr = (hub,HUB_UDP_PORT)
-			sendUDPpacket(addr, ("add",))
+			sendUDPpacket(addr, ("addleaf",))
 			print "sent heartbeat to ", addr
 
 
 def get_QHT(ip):
 	return a.get_aggregateQHT()
+
+def addFile(filename):
+	size = a.addFile(filename)
+	for hub in a.neighbours:
+		addr = (hub,HUB_UDP_PORT)
+		sendUDPpacket(addr, ("addfile",filename,size))
+		print "sent add for a filename to ", addr
+
+def removeFile(filename):
+	a.removeFile(filename)
+	for hub in a.neighbours:
+		addr = (hub,HUB_UDP_PORT)
+		sendUDPpacket(addr, ("addfile",filename))
+		print "sent remove for a filename to ", addr
 
 #to do func _map
 func_map = {
