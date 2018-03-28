@@ -73,6 +73,7 @@ def search_on_hub(currenthub, filename, fromhub = None):
 		s = initUDPrecvSocket(randport)
 		for retrycount in range(SEARCH_RETRY_LIMIT):
 			addr = (currenthub,HUB_UDP_PORT)
+			print "Searching for ", filename, " from ", currenthub
 			sendUDPpacket(addr, ("search",randport,filename))
 			response = recvUDPpacket(s, SEARCH_TIMEOUT_LIMIT)
 			if response != "":
@@ -120,11 +121,12 @@ def getFile(filename):
 class MyPrompt(Cmd):
 	def do_download(self, args):
 		"""downloads a file from p2p network, requires only one argument"""
+		args = args.split()
 		print args
-		if len(args.split())!=1:
+		if len(args)!=1:
 			print "use help to see usage"
 			return
-		download_status = getFile(args[1])
+		download_status = getFile(args[0])
 		if download_status:
 			print "File successfully downloaded from the network"
 		else:
