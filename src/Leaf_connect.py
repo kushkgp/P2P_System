@@ -10,22 +10,29 @@ from Leaf import *
 from random import *
 from cmd import Cmd
 import os
+import sys
 
-a = Leaf({},"./")
+dirpath = "./"
+if len(sys.argv)>1:
+	dirpath = sys.argv[1]
+for (dirpath, dirnames, filenames) in os.walk(dirpath):
+	filelist = filenames
+	break
+
+a = Leaf(filelist, dirpath)
+
 fd = open("leaf_logs.txt","w")
-# ffd = os.open("leaf_logs.txt",os.O_RDWR|os.O_CREAT)
-# os.dup2(ffd,1)
-# os.close(ffd)
 
 def heartbeat():
 	while True:
-		fd.write("sending heartbeat to Connected hubs")
+		fd.write("\nsending heartbeat to Connected hubs")
+		fd.flush()
 		time.sleep(HUB_HEARTRATE)
 		for hub in a.neighbours:
 			addr = (hub,HUB_UDP_PORT)
 			sendUDPpacket(addr, ("addleaf",))
-			fd.write("sent heartbeat to "+str(addr))
-
+			fd.write("\nsent heartbeat to "+str(addr))
+			fd.flush()
 
 def get_QHT(ip):
 	return a.get_aggregateQHT()
@@ -35,26 +42,32 @@ def addFile(filename):
 	for hub in a.neighbours:
 		addr = (hub,HUB_UDP_PORT)
 		sendUDPpacket(addr, ("addfile",filename,size))
-		fd.write("sent add for a filename to "+str(addr))
+		fd.write("\nsent add for a filename to "+str(addr))
+		fd.flush()
 
 def removeFile(filename):
 	a.removeFile(filename)
 	for hub in a.neighbours:
 		addr = (hub,HUB_UDP_PORT)
 		sendUDPpacket(addr, ("addfile",filename))
-		fd.write("sent remove for a filename to "+str(addr))
+		fd.write("\nsent remove for a filename to "+str(addr))
+		fd.flush()
 
 def download(leafip, hubip, filname):
 	try:
+		print "found on leaf: ", leafip
+		print "starting download..."
 		return True
 	except Exception as e:
 		fd.write(e.message)
+		fd.flush()
 		addr = (hubip, HUB_UDP_PORT)
 		sendUDPpacket(addr, ("removeleaf", leafip))
 		return False
 
 # response = [isfound, isLeaf, ip]
 def search_on_hub(currenthub, filename, fromhub = None):
+	print "searching on hub: ", currenthub
 	while True:
 		randport = randint(CLIENT_UDP_MIN,CLIENT_UDP_MAX)
 		s = initUDPrecvSocket(randport)
@@ -97,6 +110,7 @@ def search_and_download(filename):
 	return False
 
 def getFile(filename):
+	print "started searching..."
 	download_status = search_and_download(filename)
 	if download_status:
 		return True
@@ -105,8 +119,9 @@ def getFile(filename):
 
 class MyPrompt(Cmd):
 	def do_download(self, args):
-		"""Says hello. If you provide a name, it will greet you with it."""
-		if len(args) != 1:
+		"""downloads a file from p2p network, requires only one argument"""
+		print args
+		if len(args.split())!=1:
 			print "use help to see usage"
 			return
 		download_status = getFile(args[1])

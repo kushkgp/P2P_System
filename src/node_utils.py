@@ -23,7 +23,6 @@ def connect_hub(ip, a, isLeaf):
 def joinCluster(a, CLUSTER_LIMIT, isLeaf):
 	try:
 		a.hublist = get_hublist()
-		print "hi"
 		# todo sort hublist by no. of leaves/hubs
 		x = len(a.neighbours)
 		for hub in a.hublist:
