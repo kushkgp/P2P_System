@@ -7,15 +7,21 @@ import threading
 from threading import Lock
 import time
 import json
+import inspect
 
 a = Hub()
 
 mutex = Lock()
 
+def lineno():
+    """Returns the current line number in our program."""
+    print "requesting mutex at ", inspect.currentframe().f_back.f_lineno
+
 def heartbeat():
 	addr = (WEB_CACHE_IP,WEB_CACHE_UDP_PORT)
 	while True:
 		print "sending heartbeat"
+		lineno()
 		mutex.acquire()
 		try:
 			sendUDPpacket(addr, ("add",(a.get_leafCount(), a.get_neighbourCount()) ))
@@ -38,16 +44,19 @@ def addhub(ip, aggregateQHT):
 	return b
 
 def removehub(ip):
+	lineno()
 	mutex.acquire()
 	a.remove_neigbour(ip)
 	mutex.release()
 
 def addleaf(ip):
+	lineno()
 	mutex.acquire()
 	a.add_leaf(ip)
 	mutex.release()
 
 def addfile(ip, filename, size):
+	lineno()
 	mutex.acquire()
 	if ip not in a.leaves:
 		try:
@@ -59,11 +68,13 @@ def addfile(ip, filename, size):
 	mutex.release()
 
 def removefile(ip, filename):
+	lineno()
 	mutex.acquire()
 	a.remove_file(ip, filename)
 	mutex.release()
 
 def updateQHT(ip, QHT, isLeaf):
+	lineno()
 	mutex.acquire()
 	if isLeaf:
 		if ip not in a.leaves:
@@ -74,17 +85,20 @@ def updateQHT(ip, QHT, isLeaf):
 	else:
 		if ip not in a.neighbours:
 			addhub(ip,QHT)
+		lineno()
 		mutex.acquire()
 	b = a.update_QHT(ip, QHT, isLeaf)
 	return b
 	
 
 def removeleaf(ip, leafip):
+	lineno()
 	mutex.acquire()
 	a.remove_leaf(leafip)
 	mutex.release()
 
 def informQHT(ip, fromhub):
+	lineno()
 	mutex.acquire()
 	try:
 		connectHub(fromhub, a, False)
@@ -99,6 +113,7 @@ def search(ip, randport, filename):
 	isFound = False
 	target = None
 	print "searh query obtained for ", filename, " from ", ip
+	lineno()
 	mutex.acquire()
 	for leaf in a.leaves:
 		if filename in a.leaves[leaf]:
@@ -128,6 +143,7 @@ func_map = {"addhub":addhub,"removehub":removehub,
 
 def update_cluster():
 	while True:
+		lineno()
 		mutex.acquire()
 		try:
 			joinCluster(a, HUB_CLUSTER_LIMIT, isLeaf = False)
