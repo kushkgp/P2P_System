@@ -75,10 +75,11 @@ def search_on_hub(currenthub, filename, fromhub = None):
 			addr = (currenthub,HUB_UDP_PORT)
 			print "Searching for ", filename, " from ", currenthub
 			sendUDPpacket(addr, ("search",randport,filename))
-			response = recvUDPpacket(s, SEARCH_TIMEOUT_LIMIT)
+			response,_ = recvUDPpacket(s, SEARCH_TIMEOUT_LIMIT)
 			if response != "":
 				break
 		s.close()
+		print response
 		if response == "":							# if not responded
 			addr = (WEB_CACHE_IP,WEB_CACHE_UDP_PORT)
 			sendUDPpacket(addr, ("rem", currenthub))
@@ -88,7 +89,7 @@ def search_on_hub(currenthub, filename, fromhub = None):
 			return False
 		elif response[0]:
 			if response[1]:
-				download_status = download(response[2], newhub, filename)
+				download_status = download(response[2], currenthub, filename)
 				if download_status:
 					return True
 			else:									# hub redirection
