@@ -67,6 +67,8 @@ def search(ip, randport, filename):
 	addr = (ip, randport)
 	isLeaf = False
 	isFound = False
+	target = None
+	print "searh query obtained for ", filename, " from ", ip
 	for leaf in a.leaves:
 		if filename in a.leaves[leaf]:
 			isLeaf = True
@@ -79,6 +81,7 @@ def search(ip, randport, filename):
 				isFound = True
 				target = hub
 				break
+	print (isFound,isLeaf,target)
 	sendUDPpacket(addr, (isFound, isLeaf, target))
 
 # todo
