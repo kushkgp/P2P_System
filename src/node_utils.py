@@ -25,7 +25,6 @@ def joinCluster(a, CLUSTER_LIMIT, isLeaf):
 		selfip, a.hublist = get_hublist()
 		a.hublist.pop(selfip)
 		# todo sort hublist by no. of leaves/hubs
-		print selfip, a.hublist
 		for nbr in a.neighbours:
 			if nbr not in a.hublist:
 				a.neighbours.pop(nbr)

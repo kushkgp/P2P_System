@@ -156,10 +156,6 @@ def search(ip, randport, filename):
 	print (isFound,isLeaf,target)
 	sendUDPpacket(addr, (isFound, isLeaf, target))
 
-# todo
-# updateQht hub to hub
-# def search():
-
 func_map = {"addhub":addhub,"removehub":removehub,
 			"addleaf":addleaf,"addfile":addfile,"removeleaf":removeleaf,
 			"removefile":removefile,"updateQHT":updateQHT, "informQHT":informQHT,
