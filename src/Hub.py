@@ -21,10 +21,7 @@ class Hub:
 			self.neighbours.pop(ip) 
 
 	def update_QHT(self, ip, d, filelist):
-		if ip in d:
-			d[ip] = filelist
-		else:
-			raise Exception('ip not found in dict')
+		d[ip] = filelist
 
 	def add_file(self, ip, filename, size = 0):
 		if ip in self.leaves:
