@@ -19,12 +19,16 @@ def lineno():
 def lineno1():
 	print "releasing mutex at ", inspect.currentframe().f_back.f_lineno+1
 
+def lineno2():
+	print "mutex acquired at ", inspect.currentframe().f_back.f_lineno-1
+
 def heartbeat():
 	addr = (WEB_CACHE_IP,WEB_CACHE_UDP_PORT)
 	while True:
 		print "sending heartbeat"
 		lineno()
 		mutex.acquire()
+		lineno2()
 		try:
 			sendUDPpacket(addr, ("add",(a.get_leafCount(), a.get_neighbourCount()) ))
 		except Exception as e:
@@ -49,6 +53,7 @@ def addhub(ip, aggregateQHT):
 def removehub(ip):
 	lineno()
 	mutex.acquire()
+	lineno2()
 	a.remove_neigbour(ip)
 	lineno1()
 	mutex.release()
@@ -56,6 +61,7 @@ def removehub(ip):
 def addleaf(ip):
 	lineno()
 	mutex.acquire()
+	lineno2()
 	a.add_leaf(ip)
 	lineno1()
 	mutex.release()
@@ -63,6 +69,7 @@ def addleaf(ip):
 def addfile(ip, filename, size):
 	lineno()
 	mutex.acquire()
+	lineno2()
 	if ip not in a.leaves:
 		try:
 			a.leaves[ip] = requestQHT(ip)
@@ -76,6 +83,7 @@ def addfile(ip, filename, size):
 def removefile(ip, filename):
 	lineno()
 	mutex.acquire()
+	lineno2()
 	a.remove_file(ip, filename)
 	lineno1()
 	mutex.release()
@@ -83,6 +91,7 @@ def removefile(ip, filename):
 def updateQHT(ip, QHT, isLeaf):
 	lineno()
 	mutex.acquire()
+	lineno2()
 	if isLeaf:
 		if ip not in a.leaves:
 			lineno1()
@@ -96,6 +105,7 @@ def updateQHT(ip, QHT, isLeaf):
 			addhub(ip,QHT)
 		lineno()
 		mutex.acquire()
+		lineno2()
 	b = a.update_QHT(ip, QHT, isLeaf)
 	return b
 	
@@ -103,6 +113,7 @@ def updateQHT(ip, QHT, isLeaf):
 def removeleaf(ip, leafip):
 	lineno()
 	mutex.acquire()
+	lineno2()
 	a.remove_leaf(leafip)
 	lineno1()
 	mutex.release()
@@ -110,6 +121,7 @@ def removeleaf(ip, leafip):
 def informQHT(ip, fromhub):
 	lineno()
 	mutex.acquire()
+	lineno2()
 	try:
 		connectHub(fromhub, a, False)
 	except Exception as e:
@@ -126,6 +138,7 @@ def search(ip, randport, filename):
 	print "searh query obtained for ", filename, " from ", ip
 	lineno()
 	mutex.acquire()
+	lineno2()
 	for leaf in a.leaves:
 		if filename in a.leaves[leaf]:
 			isLeaf = True
@@ -157,6 +170,7 @@ def update_cluster():
 	while True:
 		lineno()
 		mutex.acquire()
+		lineno2()
 		try:
 			joinCluster(a, HUB_CLUSTER_LIMIT, isLeaf = False)
 		except Exception as e:
