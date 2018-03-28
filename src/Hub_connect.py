@@ -69,7 +69,8 @@ func_map = {"addhub":addhub,"removehub":removehub,"addleaf":addleaf,"addfile":ad
 
 def main():
 	threading.Thread(target = heartbeat).start()
-	select_call(func_map, HUB_TCP_PORT, HUB_UDP_PORT)
+	print "hi"
 	joinCluster(a, HUB_CLUSTER_LIMIT, isLeaf = False)
+	select_call(func_map, HUB_TCP_PORT, HUB_UDP_PORT)
 
 main()
