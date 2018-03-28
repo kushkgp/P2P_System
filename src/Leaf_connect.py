@@ -3,6 +3,7 @@ from utils import *
 from node_utils import *
 from env import *
 import threading
+from threading import Lock
 import time
 import json
 import os
@@ -23,35 +24,58 @@ a = Leaf(filelist, dirpath)
 
 fd = open("leaf_logs.txt","w")
 
+mutex = Lock()
+
 def heartbeat():
 	while True:
 		fd.write("\nsending heartbeat to Connected hubs")
 		fd.flush()
-		for hub in a.neighbours:
-			addr = (hub,HUB_UDP_PORT)
-			sendUDPpacket(addr, ("addleaf",))
-			fd.write("\nsent heartbeat to "+str(addr))
-			fd.flush()
-		time.sleep(LEAF_HEARTRATE)
+		mutex.acquire()
+		try:
+			for hub in a.neighbours:
+				addr = (hub,HUB_UDP_PORT)
+				sendUDPpacket(addr, ("addleaf",))
+				fd.write("\nsent heartbeat to "+str(addr))
+				fd.flush()
+		except Exception as e:
+			print e.message
+		finally:
+			mutex.release()
+			time.sleep(LEAF_HEARTRATE)
 
 def get_QHT(ip):
-	return a.get_aggregateQHT()
+	mutex.acquire()
+	b = a.get_aggregateQHT()
+	mutex.release()
+	return b
 
 def addFile(filename):
-	size = a.addFile(filename)
-	for hub in a.neighbours:
-		addr = (hub,HUB_UDP_PORT)
-		sendUDPpacket(addr, ("addfile",filename,size))
-		fd.write("\nsent add for a filename to "+str(addr))
-		fd.flush()
+	mutex.acquire()
+	try:
+		size = a.addFile(filename)
+		for hub in a.neighbours:
+			addr = (hub,HUB_UDP_PORT)
+			sendUDPpacket(addr, ("addfile",filename,size))
+			fd.write("\nsent add for a filename to "+str(addr))
+			fd.flush()
+	except Exception as e:
+		print e.message
+	finally:
+		mutex.release()
 
 def removeFile(filename):
-	a.removeFile(filename)
-	for hub in a.neighbours:
-		addr = (hub,HUB_UDP_PORT)
-		sendUDPpacket(addr, ("addfile",filename))
-		fd.write("\nsent remove for a filename to "+str(addr))
-		fd.flush()
+	mutex.acquire()
+	try:
+		a.removeFile(filename)
+		for hub in a.neighbours:
+			addr = (hub,HUB_UDP_PORT)
+			sendUDPpacket(addr, ("addfile",filename))
+			fd.write("\nsent remove for a filename to "+str(addr))
+			fd.flush()
+	except Exception as e:
+		print e.message
+	finally:
+		mutex.release()
 
 def download(leafip, hubip, filname):
 	try:
@@ -105,10 +129,18 @@ def search_on_hub(currenthub, filename, fromhub = None):
 			return False
 
 def search_and_download(filename):
-	for hub in a.hublist:
-		download_status = search_on_hub(hub, filename)
-		if download_status:
-			return True
+	mutex.acquire()
+	try:
+		for hub in a.hublist:
+			# mutex.release()
+			download_status = search_on_hub(hub, filename)
+			if download_status:
+				return True
+			# mutex.acquire()
+	except Exception as e:
+		print e.message
+	finally:
+		mutex.release()
 	return False
 
 def getFile(filename):
@@ -116,7 +148,10 @@ def getFile(filename):
 	download_status = search_and_download(filename)
 	if download_status:
 		return True
-	a.hublist = get_hublist()							# retry with new latest hubs
+	b = get_hublist()							# retry with new latest hubs
+	mutex.acquire()
+	a.hublist = b
+	mutex.release()
 	return search_and_download(filename)
 
 class MyPrompt(Cmd):
@@ -138,6 +173,17 @@ class MyPrompt(Cmd):
 		print "Quitting from network"
 		raise SystemExit
 
+def update_cluster():
+	while True:
+		mutex.acquire()
+		try:
+			joinCluster(a, LEAF_CLUSTER_LIMIT, isLeaf=True)	
+		except Exception as e:
+			print e.message
+		finally:
+			mutex.release()
+			time.sleep(LEAF_CLUSTER_UPDATE_RATE)
+
 #to do func _map
 func_map = {
 	"reqQHT":get_QHT
@@ -146,11 +192,10 @@ func_map = {
 def main():
 	# WebCacheInfo = (WEB_CACHE_IP,WEB_CACHE_UDP_PORT,WEB_CACHE_TCP_PORT)
 	threading.Thread(target = heartbeat).start()
-	joinCluster(a, LEAF_CLUSTER_LIMIT, isLeaf=True)
+	threading.Thread(target = update_cluster).start()
 	prompt = MyPrompt()
 	prompt.prompt = '> '
 	threading.Thread(target = prompt.cmdloop('Starting Client prompt...')).start()
 	select_call(func_map, LEAF_TCP_PORT, LEAF_UDP_PORT)
-	# Leaf(WebCacheInfo,1,PATH_VAR)
 
 main()

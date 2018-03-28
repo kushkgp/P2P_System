@@ -1,7 +1,6 @@
 from collections import defaultdict
 from utils import *
 from env import *
-import threading
 import time
 import json
 import os
@@ -24,15 +23,20 @@ def joinCluster(a, CLUSTER_LIMIT, isLeaf):
 	try:
 		a.hublist = get_hublist()
 		# todo sort hublist by no. of leaves/hubs
+		for nbr in a.neighbours:
+			if nbr not in a.hublist:
+				a.neighbours.pop(nbr)
 		x = len(a.neighbours)
 		for hub in a.hublist:
-			try:
-				connect_hub(hub, a, isLeaf)
-				x+=1
-				if x >= CLUSTER_LIMIT:
-					break
-			except Exception as e:
-				print e.message
-				continue
+			if hub not in a.neighbours:
+				try:
+					connect_hub(hub, a, isLeaf)
+					x+=1
+					if x >= CLUSTER_LIMIT:
+						break
+				except Exception as e:
+					print e.message
+					continue
+
 	except Exception as e:
 		print e.message
