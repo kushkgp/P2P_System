@@ -32,7 +32,7 @@ def heartbeat():
 			sendUDPpacket(addr, ("addleaf",))
 			fd.write("\nsent heartbeat to "+str(addr))
 			fd.flush()
-		time.sleep(HUB_HEARTRATE)
+		time.sleep(LEAF_HEARTRATE)
 
 def get_QHT(ip):
 	return a.get_aggregateQHT()
