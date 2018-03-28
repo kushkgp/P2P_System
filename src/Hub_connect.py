@@ -67,12 +67,15 @@ def updateQHT(ip, QHT, isLeaf):
 	mutex.acquire()
 	if isLeaf:
 		if ip not in a.leaves:
+			mutex.release()
 			addleaf(ip)
+		else:
+			mutex.release()
 	else:
 		if ip not in a.neighbours:
 			addhub(ip,QHT)
+		mutex.acquire()
 	b = a.update_QHT(ip, QHT, isLeaf)
-	mutex.release()
 	return b
 	
 
