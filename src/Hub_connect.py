@@ -55,7 +55,7 @@ def updateQHT(ip, QHT, isLeaf):
 		if ip not in a.neighbours:
 			addhub(ip,QHT)
 		d = a.neighbours
-	a.updateQHT(ip, d, QHT)
+	a.update_QHT(ip, d, QHT)
 	return true
 
 def removeleaf(ip, leafip):
