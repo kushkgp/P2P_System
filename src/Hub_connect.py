@@ -14,8 +14,10 @@ a = Hub()
 mutex = Lock()
 
 def lineno():
-    """Returns the current line number in our program."""
-    print "requesting mutex at ", inspect.currentframe().f_back.f_lineno
+	print "requesting mutex at ", inspect.currentframe().f_back.f_lineno+1
+
+def lineno1():
+	print "releasing mutex at ", inspect.currentframe().f_back.f_lineno+1
 
 def heartbeat():
 	addr = (WEB_CACHE_IP,WEB_CACHE_UDP_PORT)
@@ -28,6 +30,7 @@ def heartbeat():
 		except Exception as e:
 			print e.message
 		finally:
+			lineno1()
 			mutex.release()
 		time.sleep(HUB_HEARTRATE)
 
@@ -47,12 +50,14 @@ def removehub(ip):
 	lineno()
 	mutex.acquire()
 	a.remove_neigbour(ip)
+	lineno1()
 	mutex.release()
 
 def addleaf(ip):
 	lineno()
 	mutex.acquire()
 	a.add_leaf(ip)
+	lineno1()
 	mutex.release()
 
 def addfile(ip, filename, size):
@@ -65,12 +70,14 @@ def addfile(ip, filename, size):
 			print e.message
 	else:
 		a.add_file(ip, filename, size)
+	lineno1()
 	mutex.release()
 
 def removefile(ip, filename):
 	lineno()
 	mutex.acquire()
 	a.remove_file(ip, filename)
+	lineno1()
 	mutex.release()
 
 def updateQHT(ip, QHT, isLeaf):
@@ -78,9 +85,11 @@ def updateQHT(ip, QHT, isLeaf):
 	mutex.acquire()
 	if isLeaf:
 		if ip not in a.leaves:
+			lineno1()
 			mutex.release()
 			addleaf(ip)
 		else:
+			lineno1()
 			mutex.release()
 	else:
 		if ip not in a.neighbours:
@@ -95,6 +104,7 @@ def removeleaf(ip, leafip):
 	lineno()
 	mutex.acquire()
 	a.remove_leaf(leafip)
+	lineno1()
 	mutex.release()
 
 def informQHT(ip, fromhub):
@@ -105,6 +115,7 @@ def informQHT(ip, fromhub):
 	except Exception as e:
 		print e.message
 	finally:
+		lineno1()
 		mutex.release()
 
 def search(ip, randport, filename):
@@ -127,6 +138,7 @@ def search(ip, randport, filename):
 				isFound = True
 				target = hub
 				break
+	lineno1()
 	mutex.release()
 	print (isFound,isLeaf,target)
 	sendUDPpacket(addr, (isFound, isLeaf, target))
@@ -150,6 +162,7 @@ def update_cluster():
 		except Exception as e:
 			print e.message
 		finally:
+			lineno1()
 			mutex.release()
 			time.sleep(HUB_CLUSTER_UPDATE_RATE)
 
