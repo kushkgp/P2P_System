@@ -104,7 +104,7 @@ def updateQHT(ip, QHT, isLeaf):
 		if ip not in a.neighbours:
 			addhub(ip,QHT)
 		lineno()
-		mutex.acquire()
+		mutex.release()
 		lineno2()
 	b = a.update_QHT(ip, QHT, isLeaf)
 	return b
