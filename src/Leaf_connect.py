@@ -12,6 +12,8 @@ from random import *
 from cmd import Cmd
 import os
 import sys
+from filewatcher import * 
+import pyinotify
 
 dirpath = "./"
 if len(sys.argv)>1:
@@ -25,6 +27,26 @@ a = Leaf(filelist, dirpath)
 fd = open("leaf_logs.txt","w")
 
 mutex = Lock()
+
+class EventHandler(pyinotify.ProcessEvent):
+	def process_IN_CREATE(self, event):
+		print "Creating:", event.pathname
+		addfile(event.name)
+
+	def process_IN_DELETE(self, event):
+		print "Removing:", event.pathname
+		removeFile(event.name)
+
+def watch():
+	wm = pyinotify.WatchManager()  # Watch Manager
+	mask = pyinotify.IN_DELETE | pyinotify.IN_CREATE  # watched events
+	notifier = pyinotify.ThreadedNotifier(wm, EventHandler())
+	notifier.start()
+	wdd = wm.add_watch(a.dir, mask, rec=True)
+
+def stop_watch():
+	wm.rm_watch(wdd.values())
+	notifier.stop()
 
 def heartbeat():
 	while True:
@@ -89,10 +111,18 @@ def removeFile(filename):
 		# print "Releasing mutex"
 		mutex.release()
 
-def download(leafip, hubip, filname):
+def retrieve_file(ip,filename):
+	return allfilebytes
+
+def download(leafip, hubip, filename):
 	try:
 		print "found on leaf: ", leafip
 		print "starting download..."
+		addr = (leafip,LEAF_TCP_PORT)
+		s = initTCPSocket(addr)
+		sendTCP(s,("retrieve_file",filename))
+		file = recvTCP(s)
+		file.save()
 		return True
 	except Exception as e:
 		fd.write(e.message)
@@ -187,6 +217,7 @@ class MyPrompt(Cmd):
 	def do_quit(self, args):
 		"""Quits the program."""
 		print "Quitting from network"
+		stop_watch()
 		raise SystemExit
 
 def update_cluster():
@@ -205,11 +236,13 @@ def update_cluster():
 
 #to do func _map
 func_map = {
-	"reqQHT":get_QHT
+	"reqQHT":get_QHT,
+	"download":retrieve_file
 }
 
 def main():
 	# WebCacheInfo = (WEB_CACHE_IP,WEB_CACHE_UDP_PORT,WEB_CACHE_TCP_PORT)
+	watch()
 	threading.Thread(target = heartbeat).start()
 	threading.Thread(target = update_cluster).start()
 	prompt = MyPrompt()

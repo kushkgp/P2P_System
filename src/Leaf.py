@@ -11,7 +11,7 @@ class Leaf:
 		self.hublist = defaultdict(lambda:(0,0))
 
 	def addFile(self, filename):
-		size = os.path.getsize(self.dirpath+filename)
+		size = os.path.getsize(self.dir + filename)
 		self.FileList[filename] = size
 		return size
 

@@ -25,6 +25,10 @@ def connect_hub(ip, a, isLeaf):
 def joinCluster(a, CLUSTER_LIMIT, isLeaf):
 	try:
 		a.hublist = get_hublist(isLeaf)
+		if isLeaf :
+			sorted(a.hublist.values())
+		else :
+			#todo
 		# todo sort hublist by no. of leaves/hubs
 		for nbr in a.neighbours:
 			if nbr not in a.hublist:
