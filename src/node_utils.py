@@ -6,12 +6,12 @@ import json
 import os
 import socket
 
-def get_hublist():
+def get_hublist(isLeaf):
 	addr = (WEB_CACHE_IP,WEB_CACHE_TCP_PORT)
 	s = initTCPSocket(addr)
 	sendTCP(s,("req",))
 	response = recvTCP(s)
-	if response[0] in response[1]:
+	if not isLeaf and response[0] in response[1]:
 		response[1].pop(response[0])
 	return response[1]
 
@@ -24,7 +24,7 @@ def connect_hub(ip, a, isLeaf):
 
 def joinCluster(a, CLUSTER_LIMIT, isLeaf):
 	try:
-		a.hublist = get_hublist()
+		a.hublist = get_hublist(isLeaf)
 		# todo sort hublist by no. of leaves/hubs
 		for nbr in a.neighbours:
 			if nbr not in a.hublist:
