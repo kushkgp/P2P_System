@@ -120,7 +120,9 @@ def download(leafip, hubip, filename):
 		addr = (leafip,LEAF_TCP_PORT)
 		s = initTCPSocket(addr)
 		sendTCP(s,("retrieve_file",filename))
+		print "Request for download sent"
 		data = recvTCP(s)
+		print "Data received"
 		mutex.acquire()
 		file = open(a.dir+filename,"w+")
 		mutex.release()

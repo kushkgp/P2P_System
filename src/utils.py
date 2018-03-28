@@ -21,6 +21,7 @@ def sendTCP(skt, msg):
 		if sent == 0:
 			raise RuntimeError("socket connection broken")
 		totalsent = totalsent + sent
+		print totalsent, " bytes sent"
 
 def recvTCP(sock):
 	chunks = []
@@ -31,6 +32,7 @@ def recvTCP(sock):
 			raise RuntimeError("socket connection broken")
 		chunks.append(chunk)
 		bytes_recd = bytes_recd + len(chunk)
+		print bytes_recd, "bytes received"
 	return json.loads(b''.join(chunks))
 
 # call udp functions
