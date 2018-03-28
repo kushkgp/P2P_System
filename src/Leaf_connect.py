@@ -121,7 +121,9 @@ def download(leafip, hubip, filename):
 		s = initTCPSocket(addr)
 		sendTCP(s,("retrieve_file",filename))
 		data = recvTCP(s)
+		mutex.acquire()
 		file = open(a.dir+filename,"w+")
+		mutex.release()
 		file.write(data)
 		return True
 	except Exception as e:
@@ -247,7 +249,7 @@ def main():
 	threading.Thread(target = update_cluster).start()
 	prompt = MyPrompt()
 	prompt.prompt = '> '
-	threading.Thread(target = prompt.cmdloop('Starting Client prompt...')).start()
+	threading.Thread(target = prompt.cmdloop, args = ("Starting Client prompt...",)).start()
 	select_call(func_map, LEAF_TCP_PORT, LEAF_UDP_PORT)
 
 main()
