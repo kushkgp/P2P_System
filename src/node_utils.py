@@ -11,7 +11,7 @@ def get_hublist():
 	s = initTCPSocket(addr)
 	sendTCP(s,("req",))
 	response = recvTCP(s)
-	if response[0] in response[1]
+	if response[0] in response[1]:
 		response[1].pop(response[0])
 	return response[1]
 
