@@ -1,6 +1,7 @@
 from collections import defaultdict
 from Hub import Hub
 from utils import *
+from node_utils import *
 from env import *
 import threading
 import time
@@ -8,52 +9,12 @@ import json
 
 a = Hub()
 
-def myreceive(sock):
-	chunks = ""
-	bytes_recd = 0
-	while bytes_recd%1024==0:
-		chunk = sock.recv(1024)
-		if chunk == b'':
-			raise RuntimeError("socket connection broken")
-		chunks.append(chunk)
-		bytes_recd = bytes_recd + len(chunk)
-	return b''.join(chunks)
-
-def get_hublist():
-	addr = (WEB_CACHE_IP,WEB_CACHE_TCP_PORT)
-	s = initTCPSocket(addr)
-	sendTCP(s,("req",))
-	hublist = recvTCP(s)
-	return hublist
-
 def heartbeat():
 	addr = (WEB_CACHE_IP,WEB_CACHE_UDP_PORT)
 	while True:
 		print "sending heartbeat"
 		time.sleep(HUB_HEARTRATE)
 		sendUDPpacket(addr, ("add",(a.get_leafCount(), a.get_neighbourCount()) ))
-
-def connect_hub(ip, aggregateQHT):
-	addr = (ip, HUB_TCP_PORT)
-	s = initTCPSocket(addr)
-	sendTCP(s, ("addhub",aggregateQHT))
-	a.neighbours[ip] = recvTCP(s)
-
-def joinCluster():
-	try:
-		a.hublist = get_hublist()
-		# todo sort hublist by no. of hubs
-		x = len(a.neighbours)
-		for hub in a.hublist:
-			try:
-				connect_hub(hub, a.get_aggregateQHT())
-				x+=1
-				if x >= HUB_CLUSTER_LIMIT:
-					break
-			except Exception as e:
-				continue
-	except Exception as e:
-		print e.message
 
 def requestQHT(ip):
 	addr = (ip,LEAF_TCP_PORT)
@@ -85,18 +46,23 @@ def addfile(ip, filename, size):
 def removefile(ip, filename):
 	a.remove_file(ip, filename)
 
-def updateQHT(ip, QHT):
-	if ip in a.leaves:
+def updateQHT(ip, QHT, isLeaf):
+	if isLeaf:
+		if ip not in a.leaves:
+			addleaf(ip)
 		d = a.leaves
-	elif ip in a.neighbours:
+	else:
+		if ip not in a.neighbours:
+			addhub(ip,QHT)
 		d = a.neighbours
-	a.update_QHT(ip, d, QHT)
+	a.updateQHT(ip, d, QHT)
 	return true
 
 def removeleaf(ip, leafip):
 	a.remove_leaf(leafip)
 
 # todo
+# updateQht hub to hub
 # def search():
 
 func_map = {"addhub":addhub,"removehub":removehub,"addleaf":addleaf,"addfile":addfile,"removeleaf":removeleaf,"removefile":removefile,"updateQHT":updateQHT}
@@ -104,6 +70,6 @@ func_map = {"addhub":addhub,"removehub":removehub,"addleaf":addleaf,"addfile":ad
 def main():
 	threading.Thread(target = heartbeat).start()
 	select_call(func_map, HUB_TCP_PORT, HUB_UDP_PORT)
-	joinCluster()
+	joinCluster(a, HUB_CLUSTER_LIMIT, isLeaf = False)
 
 main()
