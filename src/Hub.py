@@ -20,8 +20,13 @@ class Hub:
 		if ip in self.neighbours:
 			self.neighbours.pop(ip) 
 
-	def update_QHT(self, ip, d, filelist):
-		d[ip] = filelist
+	def update_QHT(self, ip, filelist, isLeaf):
+		if isLeaf:
+			self.leaves[ip] = filelist
+			return True
+		else:
+			self.neighbours[ip] = filelist
+			return self.get_aggregateQHT()
 
 	def add_file(self, ip, filename, size = 0):
 		if ip in self.leaves:
