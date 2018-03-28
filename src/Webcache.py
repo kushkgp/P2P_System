@@ -49,7 +49,7 @@ class WebCache:
 			self.__hublist.pop(ip)
 	
 	def request(self, sender_ip):
-		return self.__hublist
+		return (sender_ip, self.__hublist)
 
 a = WebCache()
 func_map = {"add":a.add, "req":a.request, "rem":a.remove}
