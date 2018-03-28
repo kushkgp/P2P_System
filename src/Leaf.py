@@ -4,7 +4,7 @@ from collections import defaultdict
 class Leaf:
 	def __init__(self, FileList):
 		self.neighbours = defaultdict()
-		self.QHT = QHT
+		self.QHT = FileList
 		self.hublist = defaultdict(lambda:(0,0))
 		# self.WebCacheInfo = WebCacheInfo
 		# self.HUBSCNT = nHubs

@@ -18,6 +18,7 @@ def connect_hub(ip, aggregateQHT, isLeaf):
 	s = initTCPSocket(addr)
 	sendTCP(s, ("updateQHT",aggregateQHT, isLeaf))
 	a.neighbours[ip] = recvTCP(s)
+	s.close()
 
 def joinCluster(a, CLUSTER_LIMIT, isLeaf):
 	try:

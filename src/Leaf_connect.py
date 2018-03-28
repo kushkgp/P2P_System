@@ -8,15 +8,16 @@ import json
 import os
 from Leaf import *
 
-a = Leaf()
+a = Leaf({})
 
 def heartbeat():
 	while True:
 		print "sending heartbeat to Connected hubs"
 		time.sleep(HUB_HEARTRATE)
-		for hub in a.ConnectedHubs:
+		for hub in a.neighbours:
 			addr = (hub,HUB_UDP_PORT)
 			sendUDPpacket(addr, ("add",))
+			print "sent heartbeat to ", addr
 
 
 
@@ -25,10 +26,11 @@ def heartbeat():
 def main():
 	# WebCacheInfo = (WEB_CACHE_IP,WEB_CACHE_UDP_PORT,WEB_CACHE_TCP_PORT)
 	threading.Thread(target = heartbeat).start()
-	select_call(func_map, LEAF_TCP_PORT, LEAF_UDP_PORT)
 	joinCluster(a, LEAF_CLUSTER_LIMIT, isLeaf=True)
+	select_call(func_map, LEAF_TCP_PORT, LEAF_UDP_PORT)
 	# Leaf(WebCacheInfo,1,PATH_VAR)
 
+main()
 # HubDownTokenWebCache = "rem"
 # HubDownTokenHub = "removehub"
 # SearchToken = "search"
