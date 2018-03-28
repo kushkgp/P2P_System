@@ -30,7 +30,9 @@ def heartbeat():
 	while True:
 		fd.write("\nsending heartbeat to Connected hubs")
 		fd.flush()
+		print "Requesting mutex"
 		mutex.acquire()
+		print "Acquired mutex"
 		try:
 			for hub in a.neighbours:
 				addr = (hub,HUB_UDP_PORT)
@@ -40,17 +42,23 @@ def heartbeat():
 		except Exception as e:
 			print e.message
 		finally:
+			print "Releasing mutex"
 			mutex.release()
 			time.sleep(LEAF_HEARTRATE)
 
 def get_QHT(ip):
+	print "Requesting mutex"
 	mutex.acquire()
+	print "Acquired mutex"
 	b = a.get_aggregateQHT()
+	print "Releasing mutex"
 	mutex.release()
 	return b
 
 def addFile(filename):
+	print "Requesting mutex"
 	mutex.acquire()
+	print "Acquired mutex"
 	try:
 		size = a.addFile(filename)
 		for hub in a.neighbours:
@@ -61,10 +69,13 @@ def addFile(filename):
 	except Exception as e:
 		print e.message
 	finally:
+		print "Releasing mutex"
 		mutex.release()
 
 def removeFile(filename):
+	print "Requesting mutex"
 	mutex.acquire()
+	print "Acquired mutex"
 	try:
 		a.removeFile(filename)
 		for hub in a.neighbours:
@@ -75,6 +86,7 @@ def removeFile(filename):
 	except Exception as e:
 		print e.message
 	finally:
+		print "Releasing mutex"
 		mutex.release()
 
 def download(leafip, hubip, filname):
@@ -129,17 +141,18 @@ def search_on_hub(currenthub, filename, fromhub = None):
 			return False
 
 def search_and_download(filename):
+	print "Requesting mutex"
 	mutex.acquire()
+	print "Acquired mutex"
 	try:
 		for hub in a.hublist:
-			# mutex.release()
 			download_status = search_on_hub(hub, filename)
 			if download_status:
 				return True
-			# mutex.acquire()
 	except Exception as e:
 		print e.message
 	finally:
+		print "Releasing mutex"
 		mutex.release()
 	return False
 
@@ -149,8 +162,11 @@ def getFile(filename):
 	if download_status:
 		return True
 	b = get_hublist()							# retry with new latest hubs
+	print "Requesting mutex"
 	mutex.acquire()
+	print "Acquired mutex"
 	a.hublist = b
+	print "Releasing mutex"
 	mutex.release()
 	return search_and_download(filename)
 
@@ -175,12 +191,15 @@ class MyPrompt(Cmd):
 
 def update_cluster():
 	while True:
+		print "Requesting mutex"
 		mutex.acquire()
+		print "Acquired mutex"
 		try:
 			joinCluster(a, LEAF_CLUSTER_LIMIT, isLeaf=True)	
 		except Exception as e:
 			print e.message
 		finally:
+			print "Releasing mutex"
 			mutex.release()
 			time.sleep(LEAF_CLUSTER_UPDATE_RATE)
 
