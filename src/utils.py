@@ -122,37 +122,37 @@ def select_call(func_map, TCPport, UDPport):
 					func_map[inp[0]](addr[0],*inp[1:])
 				except Exception as e:
 					print e.message
-		# 	else:
-		# 		print "gulab"
-		# 		data = s.recv(1024)
-		# 		print data is None
-		# 		if data:
-		# 			message_queues[s].put(data)
-		# 			if s not in outputs:
-		# 				outputs.append(s)
-		# 		else:
-		# 			if s in outputs:
-		# 				outputs.remove(s)
-		# 			inputs.remove(s)
-		# 			s.close()
-		# 			del message_queues[s]
+			else:
+				print "gulab"
+				data = s.recv(1024)
+				print data is None
+				if data:
+					message_queues[s].put(data)
+					if s not in outputs:
+						outputs.append(s)
+				else:
+					if s in outputs:
+						outputs.remove(s)
+					inputs.remove(s)
+					s.close()
+					del message_queues[s]
 
-		# for s in writable:
-		# 	print "something"
-		# 	try:
-		# 		next_msg = message_queues[s].get_nowait()
-		# 	except Queue.Empty:
-		# 		outputs.remove(s)
-		# 	else:
-		# 		s.send(next_msg)
+		for s in writable:
+			print "something"
+			try:
+				next_msg = message_queues[s].get_nowait()
+			except Queue.Empty:
+				outputs.remove(s)
+			else:
+				s.send(next_msg)
 
-		# for s in exceptional:
-		# 	print "Left"
-		# 	inputs.remove(s)
-		# 	if s in outputs:
-		# 		outputs.remove(s)
-		# 	s.close()
-		# 	del message_queues[s]
+		for s in exceptional:
+			print "Left"
+			inputs.remove(s)
+			if s in outputs:
+				outputs.remove(s)
+			s.close()
+			del message_queues[s]
 
 
 # select_call()
