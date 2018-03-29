@@ -15,7 +15,7 @@ class Leaf:
 		self.QHT[filename] = size
 		return size
 
-	def removeFile(self,fileInfo,ip,port):
+	def removeFile(self, filename):
 		size = os.path.getsize(PATH + filename)
 		self.QHT.pop(filename)
 
