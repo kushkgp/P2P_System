@@ -119,7 +119,7 @@ def download(leafip, hubip, filename):
 		print "starting download..."
 		addr = (leafip,LEAF_TCP_PORT)
 		s = initTCPSocket(addr)
-		sendTCP(s,("retrieve_file",filename))
+		sendTCP(s,("download",filename))
 		print "Request for download sent"
 		data = recvTCP(s)
 		print "Data received"
