@@ -30,7 +30,7 @@ mutex = Lock()
 class EventHandler(pyinotify.ProcessEvent):
 	def process_IN_CREATE(self, event):
 		print "Creating:", event.pathname
-		addfile(event.name)
+		addFile(event.name)
 
 	def process_IN_DELETE(self, event):
 		print "Removing:", event.pathname

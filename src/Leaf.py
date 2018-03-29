@@ -12,12 +12,12 @@ class Leaf:
 
 	def addFile(self, filename):
 		size = os.path.getsize(self.dir + filename)
-		self.FileList[filename] = size
+		self.QHT[filename] = size
 		return size
 
 	def removeFile(self,fileInfo,ip,port):
 		size = os.path.getsize(PATH + filename)
-		self.FileList.pop(filename)
+		self.QHT.pop(filename)
 
 	def addHub(self, ip):
 		self.neighbours[ip]
