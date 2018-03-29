@@ -122,10 +122,9 @@ def download(leafip, hubip, filename):
 		sendTCP(s,("download",filename))
 		print "Request for download sent"
 		data = recvTCP(s)
+		s.close()
 		print "Data received"
-		mutex.acquire()
 		file = open(a.dir+filename,"w+")
-		mutex.release()
 		file.write(data)
 		return True
 	except Exception as e:
