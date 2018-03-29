@@ -16,7 +16,7 @@ class Leaf:
 		return size
 
 	def removeFile(self, filename):
-		size = os.path.getsize(PATH + filename)
+		size = os.path.getsize(self.dir + filename)
 		self.QHT.pop(filename)
 
 	def addHub(self, ip):
