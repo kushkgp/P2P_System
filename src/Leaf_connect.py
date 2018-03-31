@@ -113,6 +113,7 @@ def removeFile(filename):
 def retrieve_file(ip, filename):
 	return open(a.dir+filename,"r").read()
 
+# todo:  ftp protocol lib: pyftpdlib
 def download(leafip, hubip, filename):
 	try:
 		print "found on leaf: ", leafip

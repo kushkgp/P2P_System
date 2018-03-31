@@ -130,8 +130,8 @@ def informQHT(ip, fromhub):
 		lineno1()
 		mutex.release()
 
-def search(ip, randport, filename):
-	addr = (ip, randport)
+def search(ip, port, filename):
+	addr = (ip, port)
 	isLeaf = False
 	isFound = False
 	target = None
@@ -140,6 +140,8 @@ def search(ip, randport, filename):
 	mutex.acquire()
 	lineno2()
 	for leaf in a.leaves:
+		if leaf==ip:
+			continue
 		if filename in a.leaves[leaf]:
 			isLeaf = True
 			isFound = True
