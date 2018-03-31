@@ -247,7 +247,7 @@ func_map = {
 def main():
 	# WebCacheInfo = (WEB_CACHE_IP,WEB_CACHE_UDP_PORT,WEB_CACHE_TCP_PORT)
 	watch()
-	# threading.Thread(target = heartbeat).start()
+	threading.Thread(target = heartbeat).start()
 	threading.Thread(target = update_cluster).start()
 	prompt = MyPrompt()
 	prompt.prompt = '> '
