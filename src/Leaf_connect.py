@@ -27,8 +27,8 @@ fd = open("leaf_logs.txt","w")
 
 mutex = Lock()
 
-def leaf_kill_handler():
-	remove_temphub()
+def leaf_kill_handler(signum, frame):
+	remove_temphub(WEB_CACHE_IP_1)
 	print "leaf killed"
 
 signal.signal(signal.SIGINT, leaf_kill_handler)
@@ -258,6 +258,8 @@ def start_temphub(ip):
 		print "temp hub on is already 'ON'" 
 
 def remove_temphub(ip):
+	if ip != WEB_CACHE_IP_1 and ip != WEB_CACHE_IP_2:
+		return
 	if a.temp_pid != 0:
 		print "killing temp hub"
 		os.kill(a.temp_pid,signal.SIGKILL)
