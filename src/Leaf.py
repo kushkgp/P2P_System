@@ -9,7 +9,8 @@ class Leaf:
 		for file in FileList:
 			self.QHT[file] = os.path.getsize(self.dir + file)
 		self.hublist = defaultdict(lambda:(0,0))
-
+		self.temp_pid = 0
+		
 	def addFile(self, filename):
 		size = os.path.getsize(self.dir + filename)
 		self.QHT[filename] = size

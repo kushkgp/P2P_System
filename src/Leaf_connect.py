@@ -10,7 +10,7 @@ import os
 from Leaf import *
 from random import *
 from cmd import Cmd
-import os
+import os,signal
 import sys
 import pyinotify
 
@@ -26,6 +26,13 @@ a = Leaf(filelist, dirpath)
 fd = open("leaf_logs.txt","w")
 
 mutex = Lock()
+
+def leaf_kill_handler():
+	remove_temphub()
+	print "leaf killed"
+
+signal.signal(signal.SIGINT, leaf_kill_handler)
+signal.signal(signal.SIGTERM, leaf_kill_handler)
 
 class EventHandler(pyinotify.ProcessEvent):
 	def process_IN_CREATE(self, event):
@@ -238,10 +245,33 @@ def update_cluster():
 			mutex.release()
 			time.sleep(LEAF_CLUSTER_UPDATE_RATE)
 
+def start_temphub(ip):
+	if a.temp_pid == 0 :
+		cpid = os.fork()
+		if cpid == 0:
+			args = ["/usr/bin/xterm" , "-e" , "echo Temphub is started;" + "python ./Hub_connect yes" + ";echo Temphub is stopped; exec bash"]
+			os.execv(args[0],args) 
+		else:
+			a.temp_pid = cpid
+			print "temp hub is getting on with pid : " + str(a.temp_pid)
+	else :
+		print "temp hub on is already 'ON'" 
+
+def remove_temphub(ip):
+	if a.temp_pid != 0:
+		print "killing temp hub"
+		os.kill(a.temp_pid,signal.SIGKILL)
+		a.temp_pid = 0
+	else :
+		print "temp hub is not 'ON' yet"
+
 #to do func _map
+
 func_map = {
-	"reqQHT":get_QHT,
-	"download":retrieve_file
+	"reqQHT": get_QHT,
+	"download": retrieve_file,
+	"start_temphub": start_temphub,
+	"remove_temphub": remove_temphub	
 }
 
 def main():
