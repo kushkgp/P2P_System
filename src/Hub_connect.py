@@ -8,8 +8,14 @@ from threading import Lock
 import time
 import json
 import inspect
+import sys
+import copy
 
-a = Hub()
+
+istemp = False
+if len(sys.argv)>1 and sys.argv[0]=="yes":
+	istemp = True
+a = Hub(istemp)
 
 mutex = Lock()
 
@@ -23,14 +29,16 @@ def lineno2():
 	print "mutex acquired at ", inspect.currentframe().f_back.f_lineno-1
 
 def heartbeat():
-	addr = (WEB_CACHE_IP,WEB_CACHE_UDP_PORT)
+	addr1 = (WEB_CACHE_IP_1,WEB_CACHE_UDP_PORT)
+	addr2 = (WEB_CACHE_IP_2,WEB_CACHE_UDP_PORT)
 	while True:
 		print "sending heartbeat"
 		lineno()
 		mutex.acquire()
 		lineno2()
 		try:
-			sendUDPpacket(addr, ("add",(a.get_leafCount(), a.get_neighbourCount()) ))
+			sendUDPpacket(addr1, ("add",(a.get_leafCount(), a.get_neighbourCount(),True)))
+			sendUDPpacket(addr2, ("add",(a.get_leafCount(), a.get_neighbourCount(),True)))
 		except Exception as e:
 			print e.message
 		finally:
@@ -46,8 +54,13 @@ def requestQHT(ip):
 	return hublist
 
 def addhub(ip, aggregateQHT):
+	lineno()
+	mutex.acquire()
+	lineno2()
 	a.neighbours[ip] = aggregateQHT
-	b = a.get_aggregateQHT()
+	b = copy.deepcopy(a.get_aggregateQHT())
+	lineno1()
+	mutex.release()
 	return b
 
 def removehub(ip):
@@ -70,15 +83,22 @@ def addfile(ip, filename, size):
 	lineno()
 	mutex.acquire()
 	lineno2()
-	if ip not in a.leaves:
+	b = copy.deepcopy(a)
+	lineno1()
+	mutex.release()
+	if ip not in b.leaves:
 		try:
-			a.leaves[ip] = requestQHT(ip)
+			b.leaves[ip] = requestQHT(ip)
 		except Exception as e:
 			print e.message
 	else:
+		lineno()
+		mutex.acquire()
+		lineno2()
 		a.add_file(ip, filename, size)
-	lineno1()
-	mutex.release()
+		lineno1()
+		mutex.release()
+	
 
 def removefile(ip, filename):
 	lineno()
@@ -92,20 +112,15 @@ def updateQHT(ip, QHT, isLeaf):
 	lineno()
 	mutex.acquire()
 	lineno2()
+	b = copy.deepcopy(a);
+	lineno1()
+	mutex.release()
 	if isLeaf:
-		if ip not in a.leaves:
-			lineno1()
-			mutex.release()
+		if ip not in b:
 			addleaf(ip)
-		else:
-			lineno1()
-			mutex.release()
 	else:
 		if ip not in a.neighbours:
 			addhub(ip,QHT)
-		lineno()
-		mutex.release()
-		lineno2()
 	b = a.update_QHT(ip, QHT, isLeaf)
 	return b
 	
@@ -122,13 +137,13 @@ def informQHT(ip, fromhub):
 	lineno()
 	mutex.acquire()
 	lineno2()
+	b = copy.deepcopy(a);
+	lineno1()
+	mutex.release()
 	try:
-		connectHub(fromhub, a, False)
+		connectHub(fromhub, b, False)
 	except Exception as e:
 		print e.message
-	finally:
-		lineno1()
-		mutex.release()
 
 def search(ip, port, filename):
 	addr = (ip, port)
@@ -139,7 +154,10 @@ def search(ip, port, filename):
 	lineno()
 	mutex.acquire()
 	lineno2()
-	for leaf in a.leaves:
+	b = copy.deepcopy(a);
+	lineno1()
+	mutex.release()
+	for leaf in b.leaves:
 		if leaf==ip:
 			continue
 		if filename in a.leaves[leaf]:
@@ -153,8 +171,6 @@ def search(ip, port, filename):
 				isFound = True
 				target = hub
 				break
-	lineno1()
-	mutex.release()
 	print (isFound,isLeaf,target)
 	sendUDPpacket(addr, (isFound, isLeaf, target))
 
@@ -166,16 +182,17 @@ func_map = {"addhub":addhub,"removehub":removehub,
 
 def update_cluster():
 	while True:
-		lineno()
-		mutex.acquire()
-		lineno2()
 		try:
-			joinCluster(a, HUB_CLUSTER_LIMIT, isLeaf = False)
+			lineno()
+			mutex.acquire()
+			lineno2()
+			b = copy.deepcopy(a);
+			lineno1()
+			mutex.release();
+			joinCluster(b, HUB_CLUSTER_LIMIT, isLeaf = False)
 		except Exception as e:
 			print e.message
 		finally:
-			lineno1()
-			mutex.release()
 			time.sleep(HUB_CLUSTER_UPDATE_RATE)
 
 def main():

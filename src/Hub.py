@@ -1,10 +1,11 @@
 from collections import defaultdict
 
 class Hub:
-	def __init__(self):
+	def __init__(self, istemp):
 		self.leaves = defaultdict(lambda : defaultdict(lambda:0))
 		self.neighbours = defaultdict(lambda : defaultdict())
 		self.hublist = defaultdict(lambda:(0,0))
+		self.istemp = istemp
 
 	def add_leaf(self, ip):
 		self.leaves[ip] 
