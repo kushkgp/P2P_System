@@ -15,6 +15,7 @@ def get_hublist(isLeaf):
 			addr = addr1
 			if addr_flag==2:
 				addr = addr2
+			print "Trying to connect to Webcache at ", addr
 			s = initTCPSocket(addr)
 			sendTCP(s,("req", isLeaf))
 			response = recvTCP(s)
