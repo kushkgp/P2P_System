@@ -42,6 +42,7 @@ class WebCache:
 	# 	   # Close the connection with the client
 	# 	   c.close() 
 	def add(self, sender_ip, conn_cnt=(0,0), isTemp=0):
+		print "Active hub count is : ", len(self.__hublist)
 		if isTemp:
 			if len(self.__hublist) > MIN_HUB_COUNT:
 				try:
