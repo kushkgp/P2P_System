@@ -164,7 +164,9 @@ def search_on_hub(currenthub, filename, fromhub = None):
 		s.close()
 		print response
 		if response == "":							# if not responded
-			addr = (WEB_CACHE_IP,WEB_CACHE_UDP_PORT)
+			addr = (WEB_CACHE_IP_1,WEB_CACHE_UDP_PORT)
+			sendUDPpacket(addr, ("rem", currenthub))
+			addr = (WEB_CACHE_IP_2,WEB_CACHE_UDP_PORT)
 			sendUDPpacket(addr, ("rem", currenthub))
 			if fromhub!=None:
 				addr = (fromhub, HUB_UDP_PORT)
@@ -278,16 +280,12 @@ def remove_temphub(ip, my_ip=None):
 		print "temp hub is not 'ON' yet"
 	if my_ip is not None:
 		try:
-			addr = (WEB_CACHE_IP_1,WEB_CACHE_UDP_PORT)
+			addr = (ip, WEB_CACHE_UDP_PORT)
 			sendUDPpacket(addr, ("rem", my_ip))
 			print "Request sent to Leaf ", WEB_CACHE_IP_1, " to remove HUB"
-			addr = (WEB_CACHE_IP_2,WEB_CACHE_UDP_PORT)
-			sendUDPpacket(addr, ("rem", my_ip))
-			print "Request sent to Leaf ", WEB_CACHE_IP_2, " to remove HUB"
 		except Exception as e:
 			print e.message
 
-#to do func _map
 
 func_map = {
 	"reqQHT": get_QHT,
