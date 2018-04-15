@@ -16,7 +16,7 @@ def get_hublist(isLeaf):
 			if addr_flag==2:
 				addr = addr2
 			s = initTCPSocket(addr)
-			sendTCP(s,("req",))
+			sendTCP(s,("req", isLeaf))
 			response = recvTCP(s)
 			if not isLeaf and response[0] in response[1]:
 				response[1].pop(response[0])

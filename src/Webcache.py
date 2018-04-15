@@ -41,14 +41,31 @@ class WebCache:
 	# 	   c.send("FO")
 	# 	   # Close the connection with the client
 	# 	   c.close() 
-	def add(self, sender_ip, conn_cnt=(0,0)):
+	def add(self, sender_ip, conn_cnt=(0,0), isTemp):
+		if isTemp:
+			if len(self.__hublist) > MIN_HUB_COUNT:
+				try:
+					addr = (sender_ip,LEAF_UDP_PORT)
+					sendUDPpacket(addr, ("remove_temphub", sender_ip))
+					print "Request sent to Leaf ", sender_ip, " to remove HUB"
+				except Exception as e:
+					print e.message
 		self.__hublist[sender_ip] = conn_cnt
 
 	def remove(self, sender_ip, ip):
 		if ip in self.__hublist:
 			self.__hublist.pop(ip)
 	
-	def request(self, sender_ip):
+	def request(self, sender_ip, isLeaf):
+		if isLeaf:
+			try:
+				if len(self.__hublist) < MIN_HUB_COUNT:
+					addr = (sender_ip,LEAF_UDP_PORT)
+					sendUDPpacket(addr, ("start_temphub",))
+					print "Request sent to Leaf ", sender_ip, " to become HUB"
+				except Exception as e:
+					print e.message
+
 		return (sender_ip, self.__hublist)
 
 a = WebCache()

@@ -37,8 +37,8 @@ def heartbeat():
 		mutex.acquire()
 		lineno2()
 		try:
-			sendUDPpacket(addr1, ("add",(a.get_leafCount(), a.get_neighbourCount(),True)))
-			sendUDPpacket(addr2, ("add",(a.get_leafCount(), a.get_neighbourCount(),True)))
+			sendUDPpacket(addr1, ("add",(a.get_leafCount(), a.get_neighbourCount()),a.istemp))
+			sendUDPpacket(addr2, ("add",(a.get_leafCount(), a.get_neighbourCount()),a.istemp))
 		except Exception as e:
 			print e.message
 		finally:

@@ -30,6 +30,7 @@ mutex = Lock()
 def leaf_kill_handler(signum, frame):
 	remove_temphub(WEB_CACHE_IP_1)
 	print "leaf killed"
+	exit()
 
 signal.signal(signal.SIGINT, leaf_kill_handler)
 signal.signal(signal.SIGTERM, leaf_kill_handler)
@@ -249,15 +250,17 @@ def start_temphub(ip):
 	if a.temp_pid == 0 :
 		cpid = os.fork()
 		if cpid == 0:
-			args = ["/usr/bin/xterm" , "-e" , "echo Temphub is started;" + "python ./Hub_connect yes" + ";echo Temphub is stopped; exec bash"]
+			args = ["/usr/bin/xterm" , "-e" , "echo Temphub is started;" + "python ./Hub_connect yes" + ";echo Temphub is stopped;"]
 			os.execv(args[0],args) 
 		else:
 			a.temp_pid = cpid
 			print "temp hub is getting on with pid : " + str(a.temp_pid)
 	else :
+		# check with waitpid
 		print "temp hub on is already 'ON'" 
 
-def remove_temphub(ip):
+def remove_temphub(ip, my_ip):
+	#todo sennd remove to Webcache
 	if ip != WEB_CACHE_IP_1 and ip != WEB_CACHE_IP_2:
 		return
 	if a.temp_pid != 0:
@@ -266,6 +269,12 @@ def remove_temphub(ip):
 		a.temp_pid = 0
 	else :
 		print "temp hub is not 'ON' yet"
+	try:
+		addr = (ip,WEB_CACHE_UDP_PORT)
+		sendUDPpacket(addr, ("rem", my_ip))
+		print "Request sent to Leaf ", sender_ip, " to remove HUB"
+	except Exception as e:
+		print e.message
 
 #to do func _map
 
