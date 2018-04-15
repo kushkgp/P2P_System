@@ -59,7 +59,7 @@ class WebCache:
 	def request(self, sender_ip, isLeaf):
 		if isLeaf:
 			try:
-				if len(self.__hublist) < MIN_HUB_COUNT:
+				if len(self.__hublist) < MIN_HUB_COUNT and sender_ip not in self.__hublist:
 					addr = (sender_ip,LEAF_UDP_PORT)
 					sendUDPpacket(addr, ("start_temphub",))
 					print "Request sent to Leaf ", sender_ip, " to become HUB"
