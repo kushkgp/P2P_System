@@ -272,19 +272,11 @@ class MyPrompt(Cmd):
 
 def update_cluster():
 	while True:
-		# print "Requesting mutex"
-		lineno()
-		mutex.acquire()
-		lineno2()# 
-		# print "Acquired mutex"
 		try:
 			joinCluster(a, mutex, LEAF_CLUSTER_LIMIT, isLeaf=True)	
 		except Exception as e:
 			print e.message
 		finally:
-			# print "Releasing mutex"
-			lineno1()# 
-			mutex.release()
 			time.sleep(LEAF_CLUSTER_UPDATE_RATE)
 
 def start_temphub(ip):
