@@ -5,6 +5,7 @@ import time
 import json
 import os
 import socket
+import copy
 
 def get_hublist(isLeaf):
 	addr_flag = 1;
@@ -37,7 +38,7 @@ def connect_hub(ip, a, mutex, isLeaf):
 	b = copy.deepcopy(a.get_aggregateQHT())
 	mutex.release()
 	sendTCP(s, ("updateQHT",b, isLeaf))
-	
+
 	b = recvTCP(s)
 	mutex.acquire()
 	a.neighbours[ip] = b
@@ -74,7 +75,6 @@ def joinCluster(a, mutex, CLUSTER_LIMIT, isLeaf):
 					mutex.release()
 					if x >= CLUSTER_LIMIT:
 						break
-					continue
 			else:
 				mutex.release()
 	except Exception as e:
