@@ -166,14 +166,14 @@ def search(ip, port, filename):
 	for leaf in b.leaves:
 		if leaf==ip:
 			continue
-		if filename in a.leaves[leaf]:
+		if filename in b.leaves[leaf]:
 			isLeaf = True
 			isFound = True
 			target = leaf
 			break
 	if not isFound:
-		for hub in a.neighbours:
-			if filename in a.neighbours[hub]:
+		for hub in b.neighbours:
+			if filename in b.neighbours[hub]:
 				isFound = True
 				target = hub
 				break
