@@ -80,6 +80,7 @@ def select_call(func_map, TCPport, UDPport):
 	while inputs:
 		print "---=-=-=-=--=-=-=-=-=--==--=-=-=-=--=--=-=-=-=---=--=-=-=-=-"
 		print len(inputs)
+		print "---=-=-=-=--=-=-=-=-=--==--=-=-=-=--=--=-=-=-=---=--=-=-=-=-"
 		readable, writable, exceptional = select.select(inputs, outputs, inputs)
 		for s in readable:
 			if s is TCPserver:
