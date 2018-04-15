@@ -13,6 +13,7 @@ from cmd import Cmd
 import os,signal
 import sys
 import pyinotify
+import inspect
 
 import copy
 
@@ -28,6 +29,18 @@ a = Leaf(filelist, dirpath)
 fd = open("leaf_logs.txt","w")
 
 mutex = Lock()
+
+
+def lineno():
+	print "requesting mutex at ", inspect.currentframe().f_back.f_lineno+1
+
+def lineno1():
+	print "releasing mutex at ", inspect.currentframe().f_back.f_lineno+1
+
+def lineno2():
+	print "mutex acquired at ", inspect.currentframe().f_back.f_lineno-1
+
+
 
 def leaf_kill_handler(signum, frame):
 	remove_temphub(WEB_CACHE_IP_1)
@@ -62,8 +75,11 @@ def heartbeat():
 		fd.write("\nsending heartbeat to Connected hubs")
 		fd.flush()
 		# print "Requesting mutex"
+		lineno()
 		mutex.acquire()
+		lineno2()
 		b = copy.deepcopy(a.neighbours)
+		lineno1()
 		mutex.release()
 		# print "Acquired mutex"
 		try:
@@ -80,20 +96,26 @@ def heartbeat():
 
 def get_QHT(ip):
 	# print "Requesting mutex"
+	lineno()
 	mutex.acquire()
+	lineno2()
 	# print "Acquired mutex"
 	b = copy.deepcopy(a.get_aggregateQHT())
 	# print "Releasing mutex"
+	lineno1()
 	mutex.release()
 	return b
 
 def addFile(filename):
 	# print "Requesting mutex"
+	lineno()
 	mutex.acquire()
+	lineno2()
 	# print "Acquired mutex"
 	size = a.addFile(filename)
 	b = copy.deepcopy(a.neighbours)
 	# print "Releasing mutex"
+	lineno1()
 	mutex.release()
 
 	try:
@@ -107,10 +129,13 @@ def addFile(filename):
 
 def removeFile(filename):
 	# print "Requesting mutex"
+	lineno()
 	mutex.acquire()
+	lineno2()
 	a.removeFile(filename)
 	b = copy.deepcopy(a.neighbours)
 	# print "Releasing mutex"
+	lineno1()
 	mutex.release()
 
 	# print "Acquired mutex"
@@ -191,8 +216,11 @@ def search_on_hub(currenthub, filename, fromhub = None):
 
 def search_and_download(filename):
 	# print "Requesting mutex"
+	lineno()
 	mutex.acquire()
+	lineno2()
 	b = copy.deepcopy(a.hublist)
+	lineno1()
 	mutex.release()
 	# print "Acquired mutex"
 	try:
@@ -212,10 +240,13 @@ def getFile(filename):
 		return True
 	b = get_hublist(isLeaf = True)							# retry with new latest hubs
 	# print "Requesting mutex"
+	lineno()
 	mutex.acquire()
+	lineno2()
 	# print "Acquired mutex"
 	a.hublist = b
 	# print "Releasing mutex"
+	lineno1()
 	mutex.release()
 	return search_and_download(filename)
 
@@ -242,7 +273,9 @@ class MyPrompt(Cmd):
 def update_cluster():
 	while True:
 		# print "Requesting mutex"
-		# mutex.acquire()
+		lineno()
+		mutex.acquire()
+		lineno2()# 
 		# print "Acquired mutex"
 		try:
 			joinCluster(a, mutex, LEAF_CLUSTER_LIMIT, isLeaf=True)	
@@ -250,7 +283,8 @@ def update_cluster():
 			print e.message
 		finally:
 			# print "Releasing mutex"
-			# mutex.release()
+			lineno1()# 
+			mutex.release()
 			time.sleep(LEAF_CLUSTER_UPDATE_RATE)
 
 def start_temphub(ip):
