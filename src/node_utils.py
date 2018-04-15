@@ -56,8 +56,9 @@ def joinCluster(a, mutex, CLUSTER_LIMIT, isLeaf):
 		mutex.release()
 
 		mutex.acquire()
-		for nbr in a.neighbours:
-			if nbr not in a.hublist:
+		b = copy.deepcopy(a)
+		for nbr in b.neighbours:
+			if nbr not in b.hublist:
 				a.neighbours.pop(nbr)
 		mutex.release()
 		
