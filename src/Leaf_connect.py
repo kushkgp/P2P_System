@@ -235,15 +235,15 @@ class MyPrompt(Cmd):
 def update_cluster():
 	while True:
 		# print "Requesting mutex"
-		mutex.acquire()
+		# mutex.acquire()
 		# print "Acquired mutex"
 		try:
-			joinCluster(a, LEAF_CLUSTER_LIMIT, isLeaf=True)	
+			joinCluster(a, mutex, LEAF_CLUSTER_LIMIT, isLeaf=True)	
 		except Exception as e:
 			print e.message
 		finally:
 			# print "Releasing mutex"
-			mutex.release()
+			# mutex.release()
 			time.sleep(LEAF_CLUSTER_UPDATE_RATE)
 
 def start_temphub(ip):
@@ -261,7 +261,7 @@ def start_temphub(ip):
 		# check with waitpid
 		print "temp hub on is already 'ON'" 
 
-def remove_temphub(ip, my_ip):
+def remove_temphub(ip, my_ip=None):
 	#todo sennd remove to Webcache
 	if ip != WEB_CACHE_IP_1 and ip != WEB_CACHE_IP_2:
 		return
@@ -271,12 +271,16 @@ def remove_temphub(ip, my_ip):
 		a.temp_pid = 0
 	else :
 		print "temp hub is not 'ON' yet"
-	try:
-		addr = (ip,WEB_CACHE_UDP_PORT)
-		sendUDPpacket(addr, ("rem", my_ip))
-		print "Request sent to Leaf ", sender_ip, " to remove HUB"
-	except Exception as e:
-		print e.message
+	if my_ip is not None:
+		try:
+			addr = (WEB_CACHE_IP_1,WEB_CACHE_UDP_PORT)
+			sendUDPpacket(addr, ("rem", my_ip))
+			print "Request sent to Leaf ", WEB_CACHE_IP_1, " to remove HUB"
+			addr = (WEB_CACHE_IP_2,WEB_CACHE_UDP_PORT)
+			sendUDPpacket(addr, ("rem", my_ip))
+			print "Request sent to Leaf ", WEB_CACHE_IP_2, " to remove HUB"
+		except Exception as e:
+			print e.message
 
 #to do func _map
 

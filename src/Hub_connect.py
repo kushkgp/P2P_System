@@ -139,14 +139,14 @@ def removeleaf(ip, leafip):
 	mutex.release()
 
 def informQHT(ip, fromhub):
-	lineno()
-	mutex.acquire()
-	lineno2()
-	b = copy.deepcopy(a);
-	lineno1()
-	mutex.release()
+	# lineno()
+	# mutex.acquire()
+	# lineno2()
+	# b = copy.deepcopy(a);
+	# lineno1()
+	# mutex.release()
 	try:
-		connectHub(fromhub, b, False)
+		connectHub(fromhub, a, mutex, False)
 	except Exception as e:
 		print e.message
 
@@ -188,13 +188,13 @@ func_map = {"addhub":addhub,"removehub":removehub,
 def update_cluster():
 	while True:
 		try:
-			lineno()
-			mutex.acquire()
-			lineno2()
-			b = copy.deepcopy(a);
-			lineno1()
-			mutex.release();
-			joinCluster(b, HUB_CLUSTER_LIMIT, isLeaf = False)
+			# lineno()
+			# mutex.acquire()
+			# lineno2()
+			# b = copy.deepcopy(a);
+			# lineno1()
+			# mutex.release();
+			joinCluster(a, mutex, HUB_CLUSTER_LIMIT, isLeaf = False)
 		except Exception as e:
 			print e.message
 		finally:
