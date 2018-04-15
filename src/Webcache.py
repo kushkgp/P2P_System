@@ -41,7 +41,7 @@ class WebCache:
 	# 	   c.send("FO")
 	# 	   # Close the connection with the client
 	# 	   c.close() 
-	def add(self, sender_ip, conn_cnt=(0,0), isTemp):
+	def add(self, sender_ip, conn_cnt=(0,0), isTemp=0):
 		if isTemp:
 			if len(self.__hublist) > MIN_HUB_COUNT:
 				try:
@@ -63,8 +63,8 @@ class WebCache:
 					addr = (sender_ip,LEAF_UDP_PORT)
 					sendUDPpacket(addr, ("start_temphub",))
 					print "Request sent to Leaf ", sender_ip, " to become HUB"
-				except Exception as e:
-					print e.message
+			except Exception as e:
+				print e.message
 
 		return (sender_ip, self.__hublist)
 
