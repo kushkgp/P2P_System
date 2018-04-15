@@ -149,7 +149,13 @@ def removeFile(filename):
 		print e.message
 		
 def retrieve_file(ip, filename):
-	return open(a.dir+filename,"r").read()
+	lineno()
+	mutex.acquire()
+	lineno2()
+	b = a.dir
+	lineno1()
+	mutex.release()
+	return open(b+filename,"r").read()
 
 # todo:  ftp protocol lib: pyftpdlib
 def download(leafip, hubip, filename):
@@ -163,7 +169,13 @@ def download(leafip, hubip, filename):
 		data = recvTCP(s)
 		s.close()
 		print "Data received"
-		file = open(a.dir+filename,"w+")
+		lineno()
+		mutex.acquire()
+		lineno2()
+		b = a.dir
+		lineno1()
+		mutex.release()
+		file = open(b+filename,"w+")
 		file.write(data)
 		return True
 	except Exception as e:
@@ -280,14 +292,27 @@ def update_cluster():
 			time.sleep(LEAF_CLUSTER_UPDATE_RATE)
 
 def start_temphub(ip):
-	if a.temp_pid == 0 :
+	lineno()
+	mutex.acquire()
+	lineno2()
+	b = a.temp_pid
+	lineno1()
+	mutex.release()
+	if b == 0 :
 		cpid = os.fork()
 		args = ["/usr/bin/xterm" , "-e" , "echo Temphub is started;" + "python ./Hub_connect.py yes" + ";echo Temphub is stopped;exec bash"]
 		if cpid == 0:
 			os.execv(args[0],args) 
 		elif cpid>0:
+			lineno()
+			mutex.acquire()
+			lineno2()
 			a.temp_pid = cpid
-			print "temp hub is getting on with pid : " + str(a.temp_pid)
+			b = str(a.temp_pid)
+			lineno1()
+			mutex.release()
+
+			print "temp hub is getting on with pid : " + b
 		else:
 			print "Cannot instantiate temphub"
 	else :
