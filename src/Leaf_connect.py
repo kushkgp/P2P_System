@@ -122,7 +122,6 @@ def removeFile(filename):
 			fd.flush()
 	except Exception as e:
 		print e.message
-	finally:
 		
 def retrieve_file(ip, filename):
 	return open(a.dir+filename,"r").read()
