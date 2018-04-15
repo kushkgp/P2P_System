@@ -51,6 +51,7 @@ def requestQHT(ip):
 	s = initTCPSocket(addr)
 	sendTCP(s,("reqQHT",))
 	hublist = recvTCP(s)
+	s.close()
 	return hublist
 
 def addhub(ip, aggregateQHT):
