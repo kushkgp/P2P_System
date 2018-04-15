@@ -20,6 +20,7 @@ def get_hublist(isLeaf):
 			s = initTCPSocket(addr)
 			sendTCP(s,("req", isLeaf))
 			response = recvTCP(s)
+			s.close()
 			if not isLeaf and response[0] in response[1]:
 				response[1].pop(response[0])
 			return response[1]
