@@ -14,6 +14,8 @@ import os,signal
 import sys
 import pyinotify
 
+import copy
+
 dirpath = "./"
 if len(sys.argv)>1:
 	dirpath = sys.argv[1]
@@ -61,9 +63,11 @@ def heartbeat():
 		fd.flush()
 		# print "Requesting mutex"
 		mutex.acquire()
+		b = a.neighbours
+		mutex.release()
 		# print "Acquired mutex"
 		try:
-			for hub in a.neighbours:
+			for hub in b:
 				addr = (hub,HUB_UDP_PORT)
 				sendUDPpacket(addr, ("addleaf",))
 				fd.write("\nsent heartbeat to "+str(addr))
@@ -72,7 +76,6 @@ def heartbeat():
 			print e.message
 		finally:
 			# print "Releasing mutex"
-			mutex.release()
 			time.sleep(LEAF_HEARTRATE)
 
 def get_QHT(ip):
@@ -88,36 +91,39 @@ def addFile(filename):
 	# print "Requesting mutex"
 	mutex.acquire()
 	# print "Acquired mutex"
+	size = a.addFile(filename)
+	b = a.neighbours
+	# print "Releasing mutex"
+	mutex.release()
+
 	try:
-		size = a.addFile(filename)
-		for hub in a.neighbours:
+		for hub in b:
 			addr = (hub,HUB_UDP_PORT)
 			sendUDPpacket(addr, ("addfile",filename,size))
 			fd.write("\nsent add for a filename to "+str(addr))
 			fd.flush()
 	except Exception as e:
 		print e.message
-	finally:
-		# print "Releasing mutex"
-		mutex.release()
 
 def removeFile(filename):
 	# print "Requesting mutex"
 	mutex.acquire()
+	a.removeFile(filename)
+	b = a.neighbours
+	# print "Releasing mutex"
+	mutex.release()
+
 	# print "Acquired mutex"
 	try:
-		a.removeFile(filename)
-		for hub in a.neighbours:
+		for hub in b:
 			addr = (hub,HUB_UDP_PORT)
-			sendUDPpacket(addr, ("addfile",filename))
+			sendUDPpacket(addr, ("removefile",filename))
 			fd.write("\nsent remove for a filename to "+str(addr))
 			fd.flush()
 	except Exception as e:
 		print e.message
 	finally:
-		# print "Releasing mutex"
-		mutex.release()
-
+		
 def retrieve_file(ip, filename):
 	return open(a.dir+filename,"r").read()
 
@@ -185,17 +191,17 @@ def search_on_hub(currenthub, filename, fromhub = None):
 def search_and_download(filename):
 	# print "Requesting mutex"
 	mutex.acquire()
+	b = copy.deepcopy(a.hublist)
+	mutex.release()
 	# print "Acquired mutex"
 	try:
-		for hub in a.hublist:
+		for hub in b:
 			download_status = search_on_hub(hub, filename)
 			if download_status:
 				return True
 	except Exception as e:
 		print e.message
-	finally:
-		# print "Releasing mutex"
-		mutex.release()
+
 	return False
 
 def getFile(filename):
