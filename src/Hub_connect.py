@@ -84,12 +84,18 @@ def addfile(ip, filename, size):
 	lineno()
 	mutex.acquire()
 	lineno2()
-	b = copy.deepcopy(a)
+	b = copy.deepcopy(a.leaves)
 	lineno1()
 	mutex.release()
-	if ip not in b.leaves:
+	if ip not in b:
 		try:
-			b.leaves[ip] = requestQHT(ip)
+			x = requestQHT(ip)
+			lineno()
+			mutex.acquire()
+			lineno2()
+			a.leaves[ip] = x
+			lineno1()
+			mutex.release()
 		except Exception as e:
 			print e.message
 	else:
@@ -125,7 +131,7 @@ def updateQHT(ip, QHT, isLeaf):
 	lineno()
 	mutex.acquire()
 	lineno2()
-	b = a.update_QHT(ip, QHT, isLeaf)
+	b = copy.deepcopy(a.update_QHT(ip, QHT, isLeaf))
 	lineno1()
 	mutex.release()
 	return b

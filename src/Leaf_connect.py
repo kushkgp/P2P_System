@@ -63,7 +63,7 @@ def heartbeat():
 		fd.flush()
 		# print "Requesting mutex"
 		mutex.acquire()
-		b = a.neighbours
+		b = copy.deepcopy(a.neighbours)
 		mutex.release()
 		# print "Acquired mutex"
 		try:
@@ -82,7 +82,7 @@ def get_QHT(ip):
 	# print "Requesting mutex"
 	mutex.acquire()
 	# print "Acquired mutex"
-	b = a.get_aggregateQHT()
+	b = copy.deepcopy(a.get_aggregateQHT())
 	# print "Releasing mutex"
 	mutex.release()
 	return b
@@ -92,7 +92,7 @@ def addFile(filename):
 	mutex.acquire()
 	# print "Acquired mutex"
 	size = a.addFile(filename)
-	b = a.neighbours
+	b = copy.deepcopy(a.neighbours)
 	# print "Releasing mutex"
 	mutex.release()
 
@@ -109,7 +109,7 @@ def removeFile(filename):
 	# print "Requesting mutex"
 	mutex.acquire()
 	a.removeFile(filename)
-	b = a.neighbours
+	b = copy.deepcopy(a.neighbours)
 	# print "Releasing mutex"
 	mutex.release()
 
