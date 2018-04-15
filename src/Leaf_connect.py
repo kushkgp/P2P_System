@@ -249,7 +249,7 @@ def update_cluster():
 def start_temphub(ip):
 	if a.temp_pid == 0 :
 		cpid = os.fork()
-		args = ["/usr/bin/xterm" , "-e" , "echo Temphub is started;" + "python ./Hub_connect.py yes" + ";echo Temphub is stopped; exec bash"]
+		args = ["/usr/bin/xterm" , "-e" , "echo Temphub is started;" + "python ./Hub_connect.py yes" + ";echo Temphub is stopped;exec bash"]
 		if cpid == 0:
 			os.execv(args[0],args) 
 		elif cpid>0:

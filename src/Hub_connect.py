@@ -13,7 +13,7 @@ import copy
 
 
 istemp = False
-if len(sys.argv)>1 and sys.argv[0]=="yes":
+if len(sys.argv)>1 and sys.argv[1]=="yes":
 	istemp = True
 a = Hub(istemp)
 
@@ -116,12 +116,17 @@ def updateQHT(ip, QHT, isLeaf):
 	lineno1()
 	mutex.release()
 	if isLeaf:
-		if ip not in b:
+		if ip not in b.leaves:
 			addleaf(ip)
 	else:
-		if ip not in a.neighbours:
+		if ip not in b.neighbours:
 			addhub(ip,QHT)
+	lineno()
+	mutex.acquire()
+	lineno2()
 	b = a.update_QHT(ip, QHT, isLeaf)
+	lineno1()
+	mutex.release()
 	return b
 	
 
