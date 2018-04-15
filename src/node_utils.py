@@ -30,33 +30,52 @@ def get_hublist(isLeaf):
 			else:
 				addr_flag = 1
 
-def connect_hub(ip, a, isLeaf):
+def connect_hub(ip, a, mutex, isLeaf):
 	addr = (ip, HUB_TCP_PORT)
 	s = initTCPSocket(addr)
-	sendTCP(s, ("updateQHT",a.get_aggregateQHT(), isLeaf))
-	a.neighbours[ip] = recvTCP(s)
+	mutex.acquire()
+	b = copy.deepcopy(a.get_aggregateQHT())
+	mutex.release()
+	sendTCP(s, ("updateQHT",b, isLeaf))
+	
+	b = recvTCP(s)
+	mutex.acquire()
+	a.neighbours[ip] = b
+	mutex.release()
 	s.close()
 
-def joinCluster(a, CLUSTER_LIMIT, isLeaf):
+def joinCluster(a, mutex, CLUSTER_LIMIT, isLeaf):
 	try:
-		a.hublist = get_hublist(isLeaf)
+		b = get_hublist(isLeaf)
+		mutex.acquire()
+		a.hublist = b
+		# sorting hublist by no. of leaves/hubs
 		sorted_tuples = sorted(a.hublist.items(),key=lambda x: x[1][1-isLeaf])
-		# todo sort hublist by no. of leaves/hubs
+		mutex.release()
+
+		mutex.acquire()
 		for nbr in a.neighbours:
 			if nbr not in a.hublist:
 				a.neighbours.pop(nbr)
-		x = len(a.neighbours)
+		mutex.release()
 		
 		for hub_tuple in sorted_tuples:
 			hub = hub_tuple[0]
+			mutex.acquire()
 			if hub not in a.neighbours:
+				mutex.release()
 				try:
-					connect_hub(hub, a, isLeaf)
-					x+=1
-					if x >= CLUSTER_LIMIT:
-						break
+					connect_hub(hub, a, mutex, isLeaf)
 				except Exception as e:
 					print e.message
+				finally:
+					mutex.acquire()
+					x = len(a.neighbours)
+					mutex.release()
+					if x >= CLUSTER_LIMIT:
+						break
 					continue
+			else:
+				mutex.release()
 	except Exception as e:
 		print e.message
