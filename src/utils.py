@@ -14,7 +14,7 @@ def initTCPSocket(addr):
 	return s
 
 def sendTCP(skt, msg):
-	print msg, "to be sent by TCP"
+	# print msg, "to be sent by TCP"
 	data = json.dumps(msg).encode()
 	totalsent = 0
 	while totalsent < len(data):
@@ -22,7 +22,7 @@ def sendTCP(skt, msg):
 		if sent == 0:
 			raise RuntimeError("socket connection broken")
 		totalsent = totalsent + sent
-		print totalsent, " bytes sent"
+		# print totalsent, " bytes sent"
 
 def recvTCP(sock):
 	chunks = []
@@ -33,7 +33,7 @@ def recvTCP(sock):
 			raise RuntimeError("socket connection broken")
 		chunks.append(chunk)
 		bytes_recd = bytes_recd + len(chunk)
-		print bytes_recd, "bytes received"
+		# print bytes_recd, "bytes received"
 	return json.loads(b''.join(chunks))
 
 # call udp functions
@@ -92,7 +92,7 @@ def select_call(func_map, TCPport, UDPport):
 				TCPservers.append(connection)
 			elif s in TCPservers:
 				msg = s.recv(1024)
-				print msg
+				# print msg
 				if msg == "" or msg is None:
 					print "Client closed TCP connection ",client_addresses[s]
 					client_addresses.pop(s)
@@ -102,9 +102,9 @@ def select_call(func_map, TCPport, UDPport):
 
 				addr = client_addresses[s]
 				print "TCP packet received from ", client_addresses[s]
-				print msg
+				# print msg
 				inp = json.loads(msg)
-				print inp
+				# print inp
 				try:
 					print "func : ", inp[0], "called by ", addr[0], " with args : ", inp[1:]
 					data = func_map[inp[0]](addr[0],*inp[1:])
@@ -116,14 +116,14 @@ def select_call(func_map, TCPport, UDPport):
 				msg, addr = s.recvfrom(1024)
 				print "UDP packet received from ", addr
 				inp = json.loads(msg)
-				print inp
+				# print inp
 				try:
 					print "func : ", inp[0], "called by ", addr[0], " with args : ", inp[1:]
 					func_map[inp[0]](addr[0],*inp[1:])
 				except Exception as e:
 					print e.message
 			else:
-				print "gulab"
+				# print "gulab"
 				data = s.recv(1024)
 				print data is None
 				if data:
